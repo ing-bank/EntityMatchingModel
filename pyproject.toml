@@ -1,0 +1,242 @@
+[build-system]
+requires = ["setuptools>=68", "setuptools-scm", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "emm"
+description = "Entity Matching Model package"
+readme = "README.md"
+authors = [
+  {name = "Max Baak", email = "max.baak@ing.com"},
+  {name = "Stephane Collot", email = "stephane.collot@gmail.com"},
+  {name = "Apoorva Mahajan", email = "apoorva.mahajan@ing.com"},
+  {name = "Tomasz Waleń", email = "tomasz.walen@ing.com"},
+  {name = "Simon Brugman", email = "simon.brugman@ing.com"}
+]
+requires-python = ">=3.6"
+dependencies = [
+  # Fix for error ValueError: numpy.ndarray size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject.
+  "numpy>=1.20.1",
+  "scipy",
+  "scikit-learn>=1.0.0",
+  "pandas>=1.1.0,!=1.5.0",
+  "jinja2", # for pandas https://pandas.pydata.org/docs/getting_started/install.html#visualization
+  "rapidfuzz<3.0.0",
+  "regex",
+  "urllib3",
+  "recordlinkage",
+  "cleanco>=2.2",
+  # It is important to fix the version of xgboost for reproducible classification scores
+  "xgboost",
+  # Necessary to fix numpy issue
+  "sparse-dot-topn>=0.3.3",
+  "joblib",
+  "pyarrow>=6.0.1", # seems to work with spark 3.1.2 - 3.3.1
+  "requests",
+  "unidecode"
+]
+dynamic = ["version"]
+
+[project.optional-dependencies]
+spark = [
+  # In NumPy 1.24.0, np.bool has been removed.
+  # https://issues.apache.org/jira/browse/SPARK-41718
+  # 3.4 is needed for python 3.11
+  # https://github.com/apache/spark/pull/38987
+  "pyspark>=3.1; python_version < '3.11'",
+  "numpy<1.24.0",
+]
+dev = [
+  "pre-commit",
+  "gitpython",
+  "nbconvert",
+  "jupyter_client>=5.2.3",
+  "ipykernel>=5.1.3",
+  "matplotlib",
+  "pygments",
+  "pandoc",
+  "pympler"
+]
+test = [
+  "pytest",
+  "pytest-ordering",
+  "virtualenv"
+]
+test-cov = [
+  "coverage",
+  "pytest-cov"
+]
+test-bench = [
+  "pytest-benchmark"
+]
+test-notebook = [
+  "pytest-notebook>=0.6.1",
+  "ipykernel>=5.1.3",
+  "matplotlib",
+  "nbdime<4"
+]
+doc = [
+  "matplotlib",
+  "seaborn",
+  "sphinx",
+  "sphinx-material",
+  "furo",
+  "sphinx-copybutton",
+  "sphinx-autodoc-typehints",
+  "jupyter_contrib_nbextensions",
+  "nbstripout",
+  "nbsphinx",
+  "nbsphinx-link",
+  "ipywidgets",
+  "jinja2",
+  "jinja-cli",
+  "markupsafe",
+  "pandoc",
+  "jupyter_client>=5.2.3",
+  "myst_parser"
+]
+
+[tool.black]
+line-length = 120
+target-version = ["py38"]
+
+[tool.pytest.ini_options]
+filterwarnings = [
+  # DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
+  # Fixed in pyspark 3.4.0
+  # https://issues.apache.org/jira/browse/SPARK-38660?page=com.atlassian.jira.plugin.system.issuetabpanels%3Aall-tabpanel
+  "ignore:::.*pyspark.sql.pandas.utils:37",
+  "ignore:::.*pyspark.sql.pandas.utils:64",
+  # FutureWarning: iteritems is deprecated and will be removed in a future version. Use .items instead.
+  # Fixed in pyspark 3.4.0
+  # https://issues.apache.org/jira/browse/SPARK-40500
+  "ignore:::.*pyspark.sql.pandas.conversion:474",
+  "ignore:::.*pyspark.sql.pandas.conversion:486",
+  # DeprecationWarning: `np.bool` is a deprecated alias for the builtin `bool`. To silence this warning, use `bool` by
+  # itself. Doing this will not modify any behavior and is safe. If you specifically wanted the numpy scalar type, use
+  # `np.bool_` here.
+  # Fixed in pyspark 3.3.0, 3.4.0
+  # https://issues.apache.org/jira/browse/SPARK-40376
+  "ignore:::.*pyspark.sql.pandas.conversion:298",
+  # DeprecationWarning: In a future version, `df.iloc[:, i] = newvals` will attempt to set the values inplace instead
+  # of always setting a new array. To retain the old behavior, use either `df[df.columns[i]] = newvals` or, if columns
+  # are non-unique, `df.isetitem(i, newvals)`
+  # (New behaviour should be ok)
+  "ignore:::.*emm.indexing.pandas_candidate_selection:162",
+  "ignore:::.*emm.data.negative_data_creation:156",
+  # Use setlocale(), getencoding() and getlocale() instead
+  # https://github.com/pytest-dev/pytest-nunit/issues/67
+  "ignore:::.*pytest_nunit.nunit:119"
+]
+
+[tool.ruff]
+extend-select = ["TID"]
+target-version = "py38"
+line-length = 120
+select = [
+  # Enable Pyflakes `E`, `F` and `W` codes
+  "E",
+  "F",
+  "W",
+  # pylint
+  "PL",
+  # isort
+  "I",
+  # simplify
+  "SIM",
+  "PIE",
+  # Upgrade
+  "UP",
+  # comprehensions
+  "C4",
+  # implicit namespace
+  "INP",
+  # return
+  "RET",
+  # pytest
+  "PT",
+  # numpy
+  "NPY",
+  # import conventions
+  "ICN",
+  # implicit string concat
+  "ISC",
+  # implicit namespace
+  "INP",
+  # prints
+  "T20",
+  # quotes
+  "Q",
+  # returns
+  "RET",
+  # relative imports
+  "TID",
+  # ruff-specific rules
+  "RUF",
+  # logging format
+  "G",
+  # pydocstyle
+  "D",
+  # annotation with autofix
+  "ANN204",
+  # error messages
+  "EM",
+  # future annotations
+  "FA",
+  # raise
+  "RSE",
+  # flynt
+  "FLY",
+  # perf
+  "PERF",
+  "CPY001"
+]
+ignore = [
+  "E501", # line length
+  "PLR0913", # too many arguments
+  "PLR2004", # magic value
+  "PLR0912", # too many branches
+  "PLR0915", # too many statements
+  "PLR0911", # too many return statements
+  # Only lint existing docstrings
+  "D100",
+  "D101",
+  "D102",
+  "D103",
+  "D104",
+  "D105",
+  "D106",
+  "D107",
+  # period not required
+  "D400",
+  "D415",
+  # newline not required
+  "D205",
+  # address later
+  "PLW2901",
+  "PLC1901"
+]
+
+[tool.ruff.flake8-copyright]
+notice-rgx = """(?mis)Copyright \\(c\\) 2023 ING Analytics Wholesale Banking.+"""
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["S101", "PLR2004", "CPY001"]
+"docs/sphinx/source/conf.py" = ["INP", "CPY001"]
+"example.py" = ["T201", "CPY001"]
+
+[tool.ruff.pydocstyle]
+convention = "google"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {attr = "emm.version.__version__"}
+
+[tool.setuptools.package-data]
+emm = ["data/*.csv.gz"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["emm*"]
