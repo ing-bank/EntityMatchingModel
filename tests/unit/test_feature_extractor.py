@@ -34,35 +34,15 @@ from emm.features.pandas_feature_extractor import PandasFeatureExtractor
 
 @pytest.fixture()
 def single_candidate_pair():
-    return pd.DataFrame(
-        {
-            "name": ["rare foo company"],
-            "gt_name": ["rare bar company ltd"],
-            "score": [1.0],
-        }
-    )
+    return pd.DataFrame({"name": ["rare foo company"], "gt_name": ["rare bar company ltd"], "score": [1.0]})
 
 
 @pytest.fixture()
 def candidate_pairs():
     return pd.DataFrame(
         {
-            "name": [
-                "rare foo company",
-                "rare foo company",
-                "rare foo company",
-                "other ltd",
-                "no candidate",
-                "",
-            ],
-            "gt_name": [
-                "rare bar company ltd",
-                "unrelated company",
-                "rare limited",
-                "other limited",
-                "",
-                "",
-            ],
+            "name": ["rare foo company", "rare foo company", "rare foo company", "other ltd", "no candidate", ""],
+            "gt_name": ["rare bar company ltd", "unrelated company", "rare limited", "other limited", "", ""],
             "score": [1.0, 0.1, 0.9, 0.95, None, None],
             "uid": [0, 0, 0, 1, 2, 3],
             "country": ["PL", "PL", "PL", None, "NL", "NL"],
@@ -83,13 +63,7 @@ def kvk_candidate_pairs(n=1000):
     # introduce ties
     scores[rng.choice(range(n), n // 10)] = 0.123
     return pd.DataFrame(
-        {
-            "i": range(n),
-            "uid": [i // 10 for i in range(n)],
-            "name": names,
-            "gt_name": gt_names,
-            "score": scores,
-        }
+        {"i": range(n), "uid": [i // 10 for i in range(n)], "name": names, "gt_name": gt_names, "score": scores}
     )
 
 
@@ -122,20 +96,12 @@ def test_calc_name_features(single_candidate_pair):
 
 def test_extra_features():
     df = pd.DataFrame(
-        {
-            "country": ["PL", "PL", "PL", None, None, pd.NA],
-            "gt_country": ["PL", "NL", None, "PL", None, pd.NA],
-        }
+        {"country": ["PL", "PL", "PL", None, None, pd.NA], "gt_country": ["PL", "NL", None, "PL", None, pd.NA]}
     )
     res = calc_extra_features(df, features=["country"])
     pd.testing.assert_series_equal(res["country"], pd.Series([1, -1, 0, 0, 0, 0]), check_names=False)
 
-    df2 = pd.DataFrame(
-        {
-            "v": [1, 10, 20],
-            "gt_v": [100, 50, 0],
-        }
-    )
+    df2 = pd.DataFrame({"v": [1, 10, 20], "gt_v": [100, 50, 0]})
     res2 = calc_extra_features(df2, features=[("v", lambda x, y: x + y)])
     pd.testing.assert_series_equal(res2["v"], pd.Series([101, 60, 20]), check_names=False)
 
@@ -145,25 +111,10 @@ def test_extra_features():
     [
         # warning! this is case-sensitive
         ("abbr_match", "Abcd", "Axyz", False),
-        (
-            "abbr_match",
-            "ABC xyz",
-            "Aaa Bbb Ccc",
-            True,
-        ),
+        ("abbr_match", "ABC xyz", "Aaa Bbb Ccc", True),
         # if name is all lower case, approximate version is used
-        (
-            "abbr_match",
-            "abc xyz",
-            "aaa bbb ccc",
-            True,
-        ),
-        (
-            "abbr_match",
-            "abc xyz",
-            "aaa bbb xyz",
-            False,
-        ),
+        ("abbr_match", "abc xyz", "aaa bbb ccc", True),
+        ("abbr_match", "abc xyz", "aaa bbb xyz", False),
         ("abs_len_diff", "abc", "xyz", 0),
         ("abs_len_diff", "abc", "abcabc", 3),
         ("len_ratio", "abc", "xyz", 1.0),
@@ -200,9 +151,9 @@ def test_name_features_functions(func_name, name1, name2, expected_value):
     value = func(name1, name2)
     value_casted = np.array([value]).astype(dtype)[0]  # Like in calc_name_features()
 
-    if dtype in ["int8"]:
-        assert (isinstance(value_casted, np.int8) and -128 <= value_casted < 128) or isinstance(value_casted, bool)
-    elif dtype in ["float32"]:
+    if dtype == "int8":
+        assert -128 <= value_casted < 128 if isinstance(value_casted, np.int8) else isinstance(value_casted, bool)
+    elif dtype == "float32":
         assert isinstance(value_casted, np.float32)
     else:
         msg = f"Unsupported dtype={dtype}"
@@ -259,9 +210,7 @@ def test_calc_hits_features(candidate_pairs):
         "num_word_difference",
     ]
     pd.testing.assert_series_equal(
-        res["very_common_miss"],
-        pd.Series([1.0, 0.0, 0.0, 1.0, 0.0, 0.0], dtype="float32"),
-        check_names=False,
+        res["very_common_miss"], pd.Series([1.0, 0.0, 0.0, 1.0, 0.0, 0.0], dtype="float32"), check_names=False
     )
 
 
@@ -276,25 +225,15 @@ def test_calc_rank_features(candidate_pairs):
         "score_dist_to_min",
         "score_ptp",
     ]
+    pd.testing.assert_series_equal(res["score_rank"], pd.Series([1, 3, 2, 1, -1, -1], dtype="int8"), check_names=False)
     pd.testing.assert_series_equal(
-        res["score_rank"],
-        pd.Series([1, 3, 2, 1, -1, -1], dtype="int8"),
-        check_names=False,
+        res["score_dist_to_max"], pd.Series([0.0, 0.9, 0.1, 0.0, -1.0, -1.0], dtype="float32"), check_names=False
     )
     pd.testing.assert_series_equal(
-        res["score_dist_to_max"],
-        pd.Series([0.0, 0.9, 0.1, 0.0, -1.0, -1.0], dtype="float32"),
-        check_names=False,
+        res["score_dist_to_min"], pd.Series([0.9, 0.0, 0.8, 0.0, -1.0, -1.0], dtype="float32"), check_names=False
     )
     pd.testing.assert_series_equal(
-        res["score_dist_to_min"],
-        pd.Series([0.9, 0.0, 0.8, 0.0, -1.0, -1.0], dtype="float32"),
-        check_names=False,
-    )
-    pd.testing.assert_series_equal(
-        res["score_ptp"],
-        pd.Series([0.9, 0.9, 0.9, 0.0, -1.0, -1.0], dtype="float32"),
-        check_names=False,
+        res["score_ptp"], pd.Series([0.9, 0.9, 0.9, 0.0, -1.0, -1.0], dtype="float32"), check_names=False
     )
 
 
@@ -317,13 +256,7 @@ def test_calc_diff_features(candidate_pairs):
 
 
 def test_calc_lef_features(candidate_pairs):
-    res = calc_lef_features(
-        candidate_pairs,
-        name1="name",
-        name2="gt_name",
-        business_type=True,
-        detailed_match=True,
-    )
+    res = calc_lef_features(candidate_pairs, name1="name", name2="gt_name", business_type=True, detailed_match=True)
 
     assert all(res.index == candidate_pairs.index)
     assert "match_legal_entity_form" in res.columns
@@ -356,15 +289,7 @@ def test_calc_features(candidate_pairs):
 
     res = c.transform(candidate_pairs)
     assert all(res.index == candidate_pairs.index)
-    for col in [
-        "score",
-        "abbr_match",
-        "ratio",
-        "very_common_hit",
-        "score_rank",
-        "score_diff_to_next",
-        "country",
-    ]:
+    for col in ["score", "abbr_match", "ratio", "very_common_hit", "score_rank", "score_diff_to_next", "country"]:
         assert col in res.columns, f"missing column: {col}"
     assert len(res.columns) == 20 + len(extra_features) + 8 * len(score_columns)
 
@@ -408,15 +333,7 @@ def test_calc_features_with_lef_match(candidate_pairs):
 
     lef_matches = res["match_legal_entity_form"].tolist()
     np.testing.assert_array_equal(
-        lef_matches,
-        [
-            "no_match",
-            "identical",
-            "no_match",
-            "no_match",
-            "lef1_lef2_missing",
-            "lef1_lef2_missing",
-        ],
+        lef_matches, ["no_match", "identical", "no_match", "no_match", "lef1_lef2_missing", "lef1_lef2_missing"]
     )
 
 
@@ -424,12 +341,7 @@ def test_rank_features(candidate_pairs):
     candidate_pairs["score_1"] = candidate_pairs["score"]
     candidate_pairs["score_2"] = 1 - candidate_pairs["score"]
     score_columns = ["score_1", "score_2"]
-    c = PandasFeatureExtractor(
-        name1_col="name",
-        name2_col="gt_name",
-        uid_col="uid",
-        score_columns=score_columns,
-    )
+    c = PandasFeatureExtractor(name1_col="name", name2_col="gt_name", uid_col="uid", score_columns=score_columns)
     rank_features = {
         "score_1_diff_to_next",
         "score_1_diff_to_prev",
@@ -454,12 +366,7 @@ def test_stability_of_features(kvk_candidate_pairs):
     """Double check if the values of the features does not depend on the ordering of the data"""
     rng = np.random.default_rng(1)
 
-    c = PandasFeatureExtractor(
-        name1_col="name",
-        name2_col="gt_name",
-        uid_col="uid",
-        score_columns=["score"],
-    )
+    c = PandasFeatureExtractor(name1_col="name", name2_col="gt_name", uid_col="uid", score_columns=["score"])
     feat = c.transform(kvk_candidate_pairs).set_index(kvk_candidate_pairs["i"].values).sort_index()
     for seed in range(10):
         # shuffle the input data
@@ -475,18 +382,8 @@ def test_stability_of_features(kvk_candidate_pairs):
 def candidate_pairs_for_doc():
     return pd.DataFrame(
         {
-            "name": [
-                "ABC1",
-                "ABC1",
-                "ABC1",
-                "ABC1",
-            ],
-            "gt_name": [
-                "GT1",
-                "GT2",
-                "GT3",
-                "GT4",
-            ],
+            "name": ["ABC1", "ABC1", "ABC1", "ABC1"],
+            "gt_name": ["GT1", "GT2", "GT3", "GT4"],
             "score": [1.0, 0.9, 0.1, 0.1],
             "uid": [0, 0, 0, 0],
             "gt_uid": [1, 2, 3, 4],
@@ -502,15 +399,12 @@ def test_calc_sample_rank_features_for_doc(tmp_path, candidate_pairs_for_doc):
     diff_feat = calc_diff_features(candidate_pairs_for_doc, funcs=fe.diff_features, score_columns=["score"])
     assert len(rank_feat.columns) == 5
     assert len(diff_feat.columns) == 2
-    res = pd.concat(
-        [candidate_pairs_for_doc[["uid", "gt_uid", "score"]], rank_feat, diff_feat],
-        axis=1,
-    )
+    res = pd.concat([candidate_pairs_for_doc[["uid", "gt_uid", "score"]], rank_feat, diff_feat], axis=1)
     assert len(res) == 4
 
     # Remark: when you Transpose the dataframe, the columns contains mixed types,
     # therefore the uid row will contain float instead of int
-    res = res.T.rename(columns=lambda x: f"candidate {x+1}")
+    res = res.T.rename(columns=lambda x: f"candidate {x + 1}")
 
     latex = res.style.to_latex()
     fixed_latex = []
@@ -521,5 +415,5 @@ def test_calc_sample_rank_features_for_doc(tmp_path, candidate_pairs_for_doc):
         else:
             fixed_latex.append(line)
     fixed_latex = "\n".join(fixed_latex)
-    with open(OUTPUT_FILE, "w") as f:
+    with OUTPUT_FILE.open("w") as f:
         f.write(fixed_latex)

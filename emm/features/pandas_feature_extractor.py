@@ -30,13 +30,7 @@ from sklearn.base import TransformerMixin
 from emm.features.base_feature_extractor import BaseFeatureExtractor
 from emm.features.features_extra import calc_extra_features
 from emm.features.features_lef import calc_lef_features
-from emm.features.features_name import (
-    abbr_match,
-    abs_len_diff,
-    calc_name_features,
-    len_ratio,
-    name_cut,
-)
+from emm.features.features_name import abbr_match, abs_len_diff, calc_name_features, len_ratio, name_cut
 from emm.features.features_rank import (
     calc_diff_features,
     calc_rank_features,
@@ -48,11 +42,7 @@ from emm.features.features_rank import (
     rank,
     top2_dist,
 )
-from emm.features.features_vocabulary import (
-    Vocabulary,
-    compute_vocabulary_features,
-    create_vocabulary,
-)
+from emm.features.features_vocabulary import Vocabulary, compute_vocabulary_features, create_vocabulary
 from emm.loggers import Timer
 
 
@@ -100,7 +90,6 @@ class PandasFeatureExtractor(TransformerMixin, BaseFeatureExtractor):
 
         self.name_features = {
             "abbr_match": (abbr_match, "int8"),
-            # 20231118: turned off abs_len_diff, in error analysis found to be a misleading & counterintuitive.
             "abs_len_diff": (abs_len_diff, "int8"),
             "len_ratio": (len_ratio, "float32"),
             "token_sort_ratio": (fuzz.token_sort_ratio, "int8"),
@@ -135,12 +124,7 @@ class PandasFeatureExtractor(TransformerMixin, BaseFeatureExtractor):
 
     def _get_funcs(self):
         funcs = [
-            partial(
-                calc_name_features,
-                funcs=self.name_features,
-                name1=self.name1_col,
-                name2=self.name2_col,
-            ),
+            partial(calc_name_features, funcs=self.name_features, name1=self.name1_col, name2=self.name2_col),
             partial(
                 compute_vocabulary_features,
                 col1=self.name1_col,
@@ -156,33 +140,17 @@ class PandasFeatureExtractor(TransformerMixin, BaseFeatureExtractor):
             # warning! those features are very sensitive to changes in the scores
             funcs += [
                 partial(
-                    calc_rank_features,
-                    funcs=self.rank_features,
-                    score_columns=self.score_columns,
-                    uid_col=self.uid_col,
+                    calc_rank_features, funcs=self.rank_features, score_columns=self.score_columns, uid_col=self.uid_col
                 ),
                 partial(
-                    calc_diff_features,
-                    funcs=self.diff_features,
-                    score_columns=self.score_columns,
-                    uid_col=self.uid_col,
+                    calc_diff_features, funcs=self.diff_features, score_columns=self.score_columns, uid_col=self.uid_col
                 ),
             ]
-        # TODO: optimize and merge with other name features, or purge
         if self.with_legal_entity_forms_match:
-            funcs.append(
-                partial(
-                    calc_lef_features,
-                    name1=self.name1_col,
-                    name2=self.name2_col,
-                )
-            )
+            funcs.append(partial(calc_lef_features, name1=self.name1_col, name2=self.name2_col))
         return funcs
 
-    def transform(
-        self,
-        X: pd.DataFrame,
-    ) -> pd.DataFrame:
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
         if not self._fitted:
             self.fit(X)
         if self.funcs is None:

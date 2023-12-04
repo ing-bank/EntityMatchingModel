@@ -56,13 +56,7 @@ def test_matching_max_freq_score_candidate(sample_one_cluster_candidates):
     df = sample_one_cluster_candidates
 
     match_expected2 = pd.DataFrame(
-        {
-            "account": ["G0001"],
-            "entity_id": [1],
-            "gt_entity_id": [1],
-            "gt_uid": [1001],
-            "agg_score": [0.533333],
-        }
+        {"account": ["G0001"], "entity_id": [1], "gt_entity_id": [1], "gt_uid": [1001], "agg_score": [0.533333]}
     )
 
     match_result2 = matching_max_candidate(
@@ -108,13 +102,7 @@ def test_matching_max_freq_score_candidate_several_clusters(sample_two_cluster_c
     df = sample_two_cluster_candidates
 
     match_expected = pd.DataFrame(
-        {
-            "account": ["G0001"],
-            "entity_id": [1],
-            "gt_entity_id": [1],
-            "gt_uid": [1001],
-            "agg_score": [0.55],
-        }
+        {"account": ["G0001"], "entity_id": [1], "gt_entity_id": [1], "gt_uid": [1001], "agg_score": [0.55]}
     )
 
     match_result = matching_max_candidate(
@@ -143,13 +131,7 @@ def test_matching_max_freq_score_nan_candidate():
     )
 
     match_expected = pd.DataFrame(
-        {
-            "account": ["G0001"],
-            "entity_id": [1],
-            "gt_entity_id": [np.nan],
-            "gt_uid": [np.nan],
-            "agg_score": [0.0019],
-        }
+        {"account": ["G0001"], "entity_id": [1], "gt_entity_id": [np.nan], "gt_uid": [np.nan], "agg_score": [0.0019]}
     )
 
     match_result = matching_max_candidate(

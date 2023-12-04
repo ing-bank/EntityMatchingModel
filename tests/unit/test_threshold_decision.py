@@ -62,22 +62,15 @@ def test_threshold(supervised_model):
         agg_name=agg_name, type_name="all", metric_name="fullrecall", min_value=0.5
     ) == pytest.approx(0.0, abs=0.02)
     assert emo.calc_threshold(
-        agg_name=agg_name,
-        type_name="all",
-        metric_name="predicted_matches_rate",
-        min_value=0.5,
+        agg_name=agg_name, type_name="all", metric_name="predicted_matches_rate", min_value=0.5
     ) == pytest.approx(0.0, abs=0.02)
 
     thresholds_all = np.array([0.986111, 0.868565, 0.009231, 0.0])
     np.testing.assert_allclose(
-        thresholds_all,
-        emo.parameters["threshold_curves"][agg_name]["all"]["thresholds"],
-        atol=0.0033,
+        thresholds_all, emo.parameters["threshold_curves"][agg_name]["all"]["thresholds"], atol=0.0033
     )
 
     thresholds_neg = np.array([0.037389, 0.0])
     np.testing.assert_allclose(
-        thresholds_neg,
-        emo.parameters["threshold_curves"][agg_name]["negative"]["thresholds"],
-        atol=0.0033,
+        thresholds_neg, emo.parameters["threshold_curves"][agg_name]["negative"]["thresholds"], atol=0.0033
     )

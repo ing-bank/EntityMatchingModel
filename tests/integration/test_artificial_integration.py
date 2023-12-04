@@ -32,11 +32,7 @@ def companies_data(spark_session):
     random_seed = 42
 
     companies_ground_truth, companies_noised = create_noised_data(
-        spark_session,
-        noise_level=0.3,
-        noise_count=1,
-        split_pos_neg=False,
-        random_seed=random_seed,
+        spark_session, noise_level=0.3, noise_count=1, split_pos_neg=False, random_seed=random_seed
     )
 
     companies_ground_truth.persist()
@@ -54,18 +50,11 @@ def companies_data(spark_session):
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
 def test_artificial_integration(spark_session, supervised_model):
-    companies_ground_truth, companies_noised, companies_noised_pd = companies_data(spark_session)
+    companies_ground_truth, companies_noised, _ = companies_data(spark_session)
     em_obj = SparkEntityMatching(
         {
             "preprocessor": "preprocess_merge_abbr",
-            "indexers": [
-                {
-                    "type": "cosine_similarity",
-                    "tokenizer": "words",
-                    "ngram": 1,
-                    "num_candidates": 10,
-                }
-            ],
+            "indexers": [{"type": "cosine_similarity", "tokenizer": "words", "ngram": 1, "num_candidates": 10}],
             "entity_id_col": "Index",
             "uid_col": "uid",
             "name_col": "Name",

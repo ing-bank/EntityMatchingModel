@@ -38,14 +38,7 @@ def test_cos_sim_matcher(spark_session):
     nm = SparkEntityMatching(
         parameters={
             "preprocessor": "preprocess_name",
-            "indexers": [
-                {
-                    "type": "cosine_similarity",
-                    "tokenizer": "characters",
-                    "ngram": 3,
-                    "num_candidates": 1,
-                }
-            ],
+            "indexers": [{"type": "cosine_similarity", "tokenizer": "characters", "ngram": 3, "num_candidates": 1}],
             "entity_id_col": "id",
             "uid_col": "uid",
             "name_col": "name",
@@ -65,13 +58,7 @@ def test_cos_sim_matcher(spark_session):
 
     # Fit/Create CosSimMatcher
     csm = (
-        SparkCosSimMatcher(
-            num_candidates=3,
-            cos_sim_lower_bound=0.2,
-            index_col="id",
-            uid_col="uid",
-            name_col="name",
-        )
+        SparkCosSimMatcher(num_candidates=3, cos_sim_lower_bound=0.2, index_col="id", uid_col="uid", name_col="name")
         ._set(inputCol="features")
         ._set(outputCol="candidates")
         .fit(names)
@@ -153,11 +140,7 @@ def test_cos_sim_matcher_sparse(spark_session):
     # Create Spark DataFrame with Sparse Vector
     dim = 2
     features_vector = (
-        (
-            int(x[0]),
-            SparseVector(dim, {k: float(v) for k, v in enumerate(x[1:])}),
-        )
-        for x in indexes_features
+        (int(x[0]), SparseVector(dim, {k: float(v) for k, v in enumerate(x[1:])})) for x in indexes_features
     )
     features_df = spark_session.createDataFrame(features_vector, schema=["id", "vector"])
     features_df = features_df.withColumn("id_str", F.col("id"))
@@ -172,9 +155,4 @@ def test_cos_sim_matcher_sparse(spark_session):
     ]
 
     for param in param_list:
-        cos_sim_assert(
-            spark_session=spark_session,
-            features_df=features_df,
-            indexes=indexes,
-            **param,
-        )
+        cos_sim_assert(spark_session=spark_session, features_df=features_df, indexes=indexes, **param)

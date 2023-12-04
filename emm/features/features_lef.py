@@ -27,7 +27,6 @@ import pandas as pd
 from cleanco.clean import normalize_terms, normalized, strip_punct, strip_tail
 from cleanco.termdata import terms_by_type
 
-# TODO: optimize or discard
 LEGAL_TERMS = cleanco.clean.prepare_default_terms()
 NO_LEF = "no_lef"
 UNKNOWN_LEF = "unknown_lef"
@@ -145,12 +144,7 @@ def extract_lef(name, terms=LEGAL_TERMS, suffix=True, prefix=False, middle=False
         joined string of legal entity forms found
     """
     _, lef = custom_basename_and_lef(
-        name,
-        terms=terms,
-        suffix=suffix,
-        prefix=prefix,
-        middle=middle,
-        return_lef=return_lef,
+        name, terms=terms, suffix=suffix, prefix=prefix, middle=middle, return_lef=return_lef
     )
     return ":".join(lef)
 
@@ -183,11 +177,11 @@ def matching_legal_terms(term1: str, term2: str):
     Returns:
         matching string.
     """
-    if term1 in [NO_LEF, ""] and term2 in [NO_LEF, ""]:
+    if term1 in {NO_LEF, ""} and term2 in {NO_LEF, ""}:
         return "lef1_lef2_missing"
-    if term1 in [NO_LEF, ""]:
+    if term1 in {NO_LEF, ""}:
         return "lef1_missing"
-    if term2 in [NO_LEF, ""]:
+    if term2 in {NO_LEF, ""}:
         return "lef2_missing"
     if term1 == UNKNOWN_LEF and term2 == UNKNOWN_LEF:
         return "lef1_lef2_unknown"
@@ -217,7 +211,6 @@ def make_combi(joined1: str, joined2: str):
     return f"{joined1}__{joined2}"
 
 
-# TODO: optimize or discard
 def calc_lef_features(
     df: pd.DataFrame,
     name1: str = "preprocessed",

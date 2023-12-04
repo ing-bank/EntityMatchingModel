@@ -108,7 +108,7 @@ def spark_session(tmp_path_factory):
         "spark.sql.adaptive.enabled": "false",
         "spark.ui.enabled": "false",
     }
-    conf = [(k, v) for k, v in conf.items()]
+    conf = list(conf.items())
     config = SparkConf().setAll(conf)
 
     spark_session = SparkSession.builder.appName("EMM Test").config(conf=config)

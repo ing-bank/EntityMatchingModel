@@ -36,11 +36,7 @@ if spark_installed:
 
 def simplify_indexer_result(res, gt):
     return pd.concat(
-        [
-            gt.loc[res["gt_uid"]]["name"].reset_index(drop=True),
-            res["rank"].reset_index(drop=True),
-        ],
-        axis=1,
+        [gt.loc[res["gt_uid"]]["name"].reset_index(drop=True), res["rank"].reset_index(drop=True)], axis=1
     ).values.tolist()
 
 
@@ -121,12 +117,7 @@ def test_sni_indexer_spark(sample_gt, spark_session):
 
 
 def test_sni_indexer_with_mapping():
-    gt = pd.DataFrame(
-        {
-            "name": ["abc", "cba", "bbb", "ddd"],
-            "id": range(4),
-        }
-    )
+    gt = pd.DataFrame({"name": ["abc", "cba", "bbb", "ddd"], "id": range(4)})
     idx = PandasSortedNeighbourhoodIndexer("name", window_length=3, mapping_func=lambda x: x[::-1])
     idx.fit(gt)
     for name, expected_result in [
@@ -220,12 +211,7 @@ def test_indexer_objects_pandas(kvk_training_dataset):
         ),
         PandasSortedNeighbourhoodIndexer(input_col="preprocessed", window_length=5),
     ]
-    em_params = {
-        "name_only": True,
-        "entity_id_col": "id",
-        "name_col": "name",
-        "indexers": indexers,
-    }
+    em_params = {"name_only": True, "entity_id_col": "id", "name_col": "name", "indexers": indexers}
     p = PandasEntityMatching(em_params)
     p.fit(gt)
     res = p.transform(names)
@@ -244,20 +230,11 @@ def test_indexer_objects_spark(kvk_training_dataset, spark_session):
 
     indexers = [
         SparkCosSimIndexer(
-            tokenizer="words",
-            ngram=1,
-            num_candidates=10,
-            binary_countvectorizer=True,
-            cos_sim_lower_bound=0.0,
+            tokenizer="words", ngram=1, num_candidates=10, binary_countvectorizer=True, cos_sim_lower_bound=0.0
         ),
         SparkSortedNeighbourhoodIndexer(window_length=5),
     ]
-    em_params = {
-        "name_only": True,
-        "entity_id_col": "id",
-        "name_col": "name",
-        "indexers": indexers,
-    }
+    em_params = {"name_only": True, "entity_id_col": "id", "name_col": "name", "indexers": indexers}
     p = SparkEntityMatching(em_params)
     p.fit(sgt)
     res = p.transform(snames)
@@ -270,12 +247,7 @@ def test_naive_indexer_pandas(kvk_training_dataset):
     gt = gt[:10]
     names = names[:10]
 
-    em_params = {
-        "name_only": True,
-        "entity_id_col": "id",
-        "name_col": "name",
-        "indexers": [{"type": "naive"}],
-    }
+    em_params = {"name_only": True, "entity_id_col": "id", "name_col": "name", "indexers": [{"type": "naive"}]}
     p = PandasEntityMatching(em_params)
     p.fit(gt)
     res = p.transform(names)

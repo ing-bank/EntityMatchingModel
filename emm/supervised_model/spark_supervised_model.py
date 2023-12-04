@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 import copy
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
@@ -27,7 +28,6 @@ import pyspark.sql.functions as F
 import pyspark.sql.types as T
 from pyspark.ml import Estimator, Model
 from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
-from pyspark.sql import DataFrame
 from pyspark.sql.window import Window
 
 from emm.helper.spark_custom_reader_writer import SparkReadable, SparkWriteable
@@ -38,6 +38,9 @@ from emm.supervised_model.base_supervised_model import (
     calc_features_from_sm,
     features_schema_from_sm,
 )
+
+if TYPE_CHECKING:
+    from pyspark.sql import DataFrame
 
 
 class SparkSupervisedLayerEstimator(Estimator, DefaultParamsReadable, DefaultParamsWritable, BaseSupervisedModel):
@@ -125,28 +128,15 @@ class SparkSupervisedLayerEstimator(Estimator, DefaultParamsReadable, DefaultPar
             SparkSupervisedLayerModel
         """
         logger.info("SparkSupervisedLayerEstimator._fit()")
-        return SparkSupervisedLayerModel(
-            self.supervised_models,
-            self.return_features,
-            self.force_execution,
-        )
+        return SparkSupervisedLayerModel(self.supervised_models, self.return_features, self.force_execution)
 
 
 class SparkSupervisedLayerModel(Model, SparkReadable, SparkWriteable, DefaultParamsReadable, DefaultParamsWritable):
     """Fitted spark implementation of supervised model(s) estimator"""
 
-    SERIALIZE_ATTRIBUTES = (
-        "supervised_models",
-        "return_features",
-        "force_execution",
-    )
+    SERIALIZE_ATTRIBUTES = ("supervised_models", "return_features", "force_execution")
 
-    def __init__(
-        self,
-        supervised_models,
-        return_features: bool = False,
-        force_execution=False,
-    ) -> None:
+    def __init__(self, supervised_models, return_features: bool = False, force_execution=False) -> None:
         """Fitted spark implementation of supervised model(s) estimator
 
         See SparkSupervisedLayerEstimator for details on usage.
@@ -261,10 +251,7 @@ class SparkSupervisedLayerModel(Model, SparkReadable, SparkWriteable, DefaultPar
                 raw_preds = sm.predict_proba(data)[:, 1] if len(data) > 0 else np.array([], dtype="float64")
                 preds = pd.Series(raw_preds, index=data.index, name="nm_score")
                 data[model_col] = preds
-                data[model_col] = data.apply(
-                    lambda x: None if pd.isnull(x["gt_entity_id"]) else x[model_col],
-                    axis=1,
-                )
+                data[model_col] = data.apply(lambda x: None if pd.isnull(x["gt_entity_id"]) else x[model_col], axis=1)
             return data
 
         # applyInPandas is the new API function, apply is going to be deprecated
@@ -276,8 +263,8 @@ class SparkSupervisedLayerModel(Model, SparkReadable, SparkWriteable, DefaultPar
             run_score_model.func, schema=run_score_model.returnType
         )
 
+    @staticmethod
     def select_best_score(
-        self,
         df: DataFrame,
         group_col: str | None = "uid",
         best_score_col: str | None = "nm_score",

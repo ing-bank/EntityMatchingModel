@@ -24,10 +24,7 @@ from typing import Literal
 import pandas as pd
 from sklearn.base import TransformerMixin
 
-from emm.aggregation.base_entity_aggregation import (
-    BaseEntityAggregation,
-    matching_max_candidate,
-)
+from emm.aggregation.base_entity_aggregation import BaseEntityAggregation, matching_max_candidate
 from emm.loggers import Timer
 
 

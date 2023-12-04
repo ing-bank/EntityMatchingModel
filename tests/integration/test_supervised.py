@@ -24,13 +24,8 @@ import pytest
 from emm.helper import spark_installed
 from emm.helper.io import load_pickle
 from emm.pipeline.pandas_entity_matching import PandasEntityMatching
-from emm.supervised_model.base_supervised_model import (
-    calc_features_from_sm,
-    features_schema_from_sm,
-)
-from emm.supervised_model.pandas_supervised_model import (
-    PandasSupervisedLayerTransformer,
-)
+from emm.supervised_model.base_supervised_model import calc_features_from_sm, features_schema_from_sm
+from emm.supervised_model.pandas_supervised_model import PandasSupervisedLayerTransformer
 
 from .test_pandas_em import split_gt_and_names
 
@@ -79,31 +74,20 @@ def test_calc_features_in_pandas_supervised_layer(sample_sm_input, supervised_mo
     # standard columns from supervised layer
     assert {"score_0", "nm_score"} <= set(res.columns)
     # features
-    assert {
-        "nm_score_feat_abbr_match",
-        "nm_score_feat_ratio",
-        "nm_score_feat_score_0_rank",
-    } <= set(res.columns)
+    assert {"nm_score_feat_abbr_match", "nm_score_feat_ratio", "nm_score_feat_score_0_rank"} <= set(res.columns)
     assert all(res.filter(regex="^nm_score_feat").isnull().sum() == 0)
 
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
 def test_calc_features_in_spark_supervised_layer(spark_session, sample_sm_input, supervised_model):
     sm = load_pickle(supervised_model[2].name, supervised_model[2].parent)
-    estimator = SparkSupervisedLayerEstimator(
-        {"nm_score": {"model": sm, "enable": True}},
-        return_features=True,
-    )
+    estimator = SparkSupervisedLayerEstimator({"nm_score": {"model": sm, "enable": True}}, return_features=True)
     model = estimator.fit(dataset=None)
     res = model.transform(spark_session.createDataFrame(sample_sm_input))
     # standard columns from supervised layer
     assert {"score_0", "nm_score"} <= set(res.columns)
     # features
-    assert {
-        "nm_score_feat_abbr_match",
-        "nm_score_feat_ratio",
-        "nm_score_feat_score_0_rank",
-    } <= set(res.columns)
+    assert {"nm_score_feat_abbr_match", "nm_score_feat_ratio", "nm_score_feat_score_0_rank"} <= set(res.columns)
     res_pd = res.toPandas()
     assert all(res_pd.filter(regex="^nm_score_feat").isnull().sum() == 0)
 
@@ -120,11 +104,7 @@ def test_return_sm_features_pandas(kvk_training_dataset):
         "supervised_on": True,
         "return_sm_features": True,
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1},
             {"type": "sni", "window_length": 5},
         ],
     }
@@ -183,11 +163,7 @@ def test_return_sm_features_spark(kvk_training_dataset, spark_session):
         "supervised_on": True,
         "return_sm_features": True,
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1},
             {"type": "sni", "window_length": 5},
         ],
     }

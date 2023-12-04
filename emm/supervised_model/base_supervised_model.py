@@ -70,24 +70,11 @@ def create_new_model_pipeline(
     default_xgb_args.update(xgb_args)
 
     return Pipeline(
-        [
-            (
-                "feat",
-                PandasFeatureExtractor(**default_feature_args),
-            ),
-            (
-                "classifier",
-                XGBClassifier(**default_xgb_args),
-            ),
-        ]
+        [("feat", PandasFeatureExtractor(**default_feature_args)), ("classifier", XGBClassifier(**default_xgb_args))]
     )
 
 
-def calc_features_from_sm(
-    sm: Pipeline,
-    input: pd.DataFrame,
-    features_name="feat",
-):
+def calc_features_from_sm(sm: Pipeline, input: pd.DataFrame, features_name="feat"):
     res = pd.DataFrame(index=input.index)
     if not hasattr(sm, "named_steps"):
         logger.warning("calc_features_from_sm is supported only for new models (version > 0.0.4)")
@@ -199,11 +186,7 @@ def train_model(
         }
         feature_args.update(feature_kws)
         xgb_args = {"n_jobs": n_jobs}
-        model = create_new_model_pipeline(
-            name_only=name_only,
-            feature_args=feature_args,
-            xgb_args=xgb_args,
-        )
+        model = create_new_model_pipeline(name_only=name_only, feature_args=feature_args, xgb_args=xgb_args)
     else:
         model = custom_model
 
@@ -280,10 +263,7 @@ def train_test_model(
     # remark: we use StratifiedGroupKFold() not for cross-validation folds, but just to split in two: training/validation.
     cv = StratifiedGroupKFold(n_splits=n_folds, shuffle=True, random_state=random_state)
     train_inds, valid_inds = next(cv.split(X=dataset, y=y, groups=dataset[group_col]))
-    train_df, valid_df = (
-        dataset.iloc[train_inds].copy(),
-        dataset.iloc[valid_inds].copy(),
-    )
+    train_df, valid_df = (dataset.iloc[train_inds].copy(), dataset.iloc[valid_inds].copy())
 
     model = train_model(
         train_df,

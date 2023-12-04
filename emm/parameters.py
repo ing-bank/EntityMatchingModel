@@ -18,6 +18,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """Default parameters for Entity Matching."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -31,12 +32,7 @@ MODEL_PARAMS = {
     # type of name preprocessor defined in name_preprocessing.py
     "preprocessor": "preprocess_merge_abbr",
     "indexers": [
-        {
-            "type": "cosine_similarity",
-            "tokenizer": "words",
-            "ngram": 1,
-            "num_candidates": 10,
-        },
+        {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1, "num_candidates": 10},
         {
             "type": "cosine_similarity",
             "tokenizer": "characters",

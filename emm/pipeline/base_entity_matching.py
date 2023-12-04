@@ -37,11 +37,7 @@ from emm.version import __version__
 class BaseEntityMatching(Pipeline, ABC):
     """Base implementation of EntityMatching"""
 
-    def __init__(
-        self,
-        parameters: dict | None = None,
-        supervised_models: dict[str, Any] | None = None,
-    ) -> None:
+    def __init__(self, parameters: dict | None = None, supervised_models: dict[str, Any] | None = None) -> None:
         """Base implementation of EntityMatching
 
         Args:
@@ -133,10 +129,7 @@ class BaseEntityMatching(Pipeline, ABC):
             if self.supervised_models is None:
                 self.supervised_models = {}
             load_func = IOFunc().reader
-            model = load_func(
-                self.parameters["supervised_model_filename"],
-                self.parameters["supervised_model_dir"],
-            )
+            model = load_func(self.parameters["supervised_model_filename"], self.parameters["supervised_model_dir"])
             self.supervised_models[model_key] = {
                 "description": f"model loaded from {self.parameters['supervised_model_dir']}/{self.parameters['supervised_model_filename']}",
                 "model": model,
@@ -189,10 +182,7 @@ class BaseEntityMatching(Pipeline, ABC):
             columns += [self.parameters["country_col"]]
             normalized_columns += ["country"]
         if self.parameters["aggregation_layer"] and not ground_truth:
-            columns += [
-                self.parameters["account_col"],
-                self.parameters["freq_col"],
-            ]
+            columns += [self.parameters["account_col"], self.parameters["freq_col"]]
             normalized_columns += ["account", "counterparty_account_count_distinct"]
 
         for col, norm_col in zip(columns, normalized_columns):
@@ -277,14 +267,7 @@ class BaseEntityMatching(Pipeline, ABC):
 
         return threshold
 
-    def set_threshold(
-        self,
-        type_name,
-        metric_name,
-        min_value,
-        agg_name=None,
-        threshold_parameters=None,
-    ):
+    def set_threshold(self, type_name, metric_name, min_value, agg_name=None, threshold_parameters=None):
         """Calculate and set threshold score for given metric with minimum metric value
 
         Args:
@@ -298,8 +281,7 @@ class BaseEntityMatching(Pipeline, ABC):
         # If agg_name is not given, let's use the current EM paramters to get the agg_name key
         if agg_name is None:
             agg_name = self.get_threshold_agg_name(
-                self.parameters.get("aggregation_layer", False),
-                self.parameters.get("aggregation_method"),
+                self.parameters.get("aggregation_layer", False), self.parameters.get("aggregation_method")
             )
 
         threshold = self.calc_threshold(agg_name, type_name, metric_name, min_value, threshold_parameters)

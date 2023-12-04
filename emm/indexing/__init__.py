@@ -22,11 +22,7 @@ from emm.indexing.pandas_cos_sim_matcher import PandasCosSimIndexer
 from emm.indexing.pandas_naive_indexer import PandasNaiveIndexer
 from emm.indexing.pandas_sni import PandasSortedNeighbourhoodIndexer
 
-__all__ = [
-    "PandasCosSimIndexer",
-    "PandasNaiveIndexer",
-    "PandasSortedNeighbourhoodIndexer",
-]
+__all__ = ["PandasCosSimIndexer", "PandasNaiveIndexer", "PandasSortedNeighbourhoodIndexer"]
 
 if spark_installed:
     from emm.indexing.spark_cos_sim_matcher import SparkCosSimIndexer

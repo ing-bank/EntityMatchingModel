@@ -104,18 +104,10 @@ class PandasSortedNeighbourhoodIndexer(TransformerMixin, SNBaseIndexer):
             idx: pd.Index = self.sni.index(self.gt, names)
 
             timer.label("other")
-            candidates = pd.DataFrame(
-                {
-                    "uid": idx.get_level_values(1).values,
-                    "gt_uid": idx.get_level_values(0).values,
-                }
-            )
+            candidates = pd.DataFrame({"uid": idx.get_level_values(1).values, "gt_uid": idx.get_level_values(0).values})
 
             # calculate sni distance, WARNING this is based on recordlinkage internals
-            self.mapping = pd.Series(
-                np.arange(len(self.sni.sorting_key_values)),
-                index=self.sni.sorting_key_values,
-            )
+            self.mapping = pd.Series(np.arange(len(self.sni.sorting_key_values)), index=self.sni.sorting_key_values)
             assert self.gt is not None
             gt_rank = self.gt.loc[candidates.gt_uid][self.input_col].map(self.mapping).values
             X_rank = names.loc[candidates.uid][self.input_col].map(self.mapping).values

@@ -18,11 +18,13 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """Helper function for name matching model save and load"""
+
 from __future__ import annotations
 
 import gc
 from functools import partial
 from itertools import chain
+from typing import TYPE_CHECKING
 
 import numpy as np
 from scipy.sparse import csr_matrix, vstack
@@ -30,8 +32,10 @@ from scipy.sparse import csr_matrix, vstack
 from emm.helper import spark_installed
 from emm.helper.util import groupby
 
-if spark_installed:
+if TYPE_CHECKING:
     from pyspark.ml.linalg import DenseVector, SparseVector
+
+if spark_installed:
     from pyspark.sql import functions as F
     from pyspark.sql.window import Window
 
@@ -90,7 +94,7 @@ def collect_matrix(dist_matrix, uid_col, feature_col, blocking_col=None):
         return indices, matrix.T
 
     # The data should be "sliceable/maskable" for groupby
-    indicies = groupby(indices, blocks, postprocess_func=lambda x: np.array(x))
+    indicies = groupby(indices, blocks, postprocess_func=np.array)
     matrix = groupby(matrix, blocks, postprocess_func=lambda x: x.T)
     gc.collect()  # Free some memory on the driver
     return indicies, matrix

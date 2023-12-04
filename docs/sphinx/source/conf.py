@@ -88,10 +88,7 @@ html_title = "Entity Matching Model API"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-autodoc_default_options = {
-    "undoc-members": True,
-    "exclude-members": "__weakref__,_abc_impl",
-}
+autodoc_default_options = {"undoc-members": True, "exclude-members": "__weakref__,_abc_impl"}
 
 # sphinx_autodoc_typehints settings
 always_document_param_types = True
@@ -136,10 +133,7 @@ class PrettyPrintIterable(Directive):
         literal = nodes.literal_block(code, code)
         literal["language"] = "python"
 
-        return [
-            addnodes.desc_name(text=member_name),
-            addnodes.desc_content("", literal),
-        ]
+        return [addnodes.desc_name(text=member_name), addnodes.desc_content("", literal)]
 
 
 def setup(app):

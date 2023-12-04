@@ -20,9 +20,7 @@
 from emm.helper import spark_installed
 from emm.pipeline.pandas_entity_matching import PandasEntityMatching
 
-__all__ = [
-    "PandasEntityMatching",
-]
+__all__ = ["PandasEntityMatching"]
 
 if spark_installed:
     from emm.pipeline.spark_entity_matching import SparkEntityMatching

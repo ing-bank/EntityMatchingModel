@@ -112,7 +112,6 @@ def abbr_match(str_with_abbr: str, str_with_open_form: str) -> bool:
 
 def abs_len_diff(name1: str, name2: str) -> int:
     """Difference (in characters) in lengths of names"""
-    # TODO: turn off abs_len_diff, in error analysis this was found to be a misleading/counterintuitive feature.
     return abs(len(name1) - len(name2))
 
 
@@ -132,10 +131,7 @@ def name_cut(name1: str, name2: str) -> bool:
 
 
 def calc_name_features(
-    df: pd.DataFrame,
-    funcs: dict[Callable, str],
-    name1: str = "preprocessed",
-    name2: str = "gt_preprocessed",
+    df: pd.DataFrame, funcs: dict[Callable, str], name1: str = "preprocessed", name2: str = "gt_preprocessed"
 ) -> pd.DataFrame:
     res = pd.DataFrame(index=df.index)
 

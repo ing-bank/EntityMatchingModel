@@ -35,14 +35,7 @@ from emm.preprocessing.pandas_preprocessor import PandasPreprocessor
 from emm.resources import _RESOURCES
 
 if spark_installed:
-    from pyspark.sql.types import (
-        BooleanType,
-        FloatType,
-        IntegerType,
-        StringType,
-        StructField,
-        StructType,
-    )
+    from pyspark.sql.types import BooleanType, FloatType, IntegerType, StringType, StructField, StructType
 
 # location of Dutch chamber of commerce (kvk) example dataset
 KVK_URL = "https://web.archive.org/web/20140225151639if_/http://www.kvk.nl/download/LEI_Full_tcm109-377398.csv"
@@ -252,10 +245,7 @@ def create_example_noised_names(noise_level=0.3, noise_type="all", random_seed=1
         ground_truth and noised names, both pandas dataframes
     """
     ground_truth, _, positive_noised_pd, _ = pandas_create_noised_data(
-        noise_level=noise_level,
-        noise_type=noise_type,
-        random_seed=random_seed,
-        split_pos_neg=False,
+        noise_level=noise_level, noise_type=noise_type, random_seed=random_seed, split_pos_neg=False
     )
     return ground_truth, positive_noised_pd
 
@@ -422,20 +412,8 @@ def create_noised_data(
         # location of local sample of kvk unit test dataset; downloads the dataset in case not present.
         data_path, _ = retrieve_kvk_test_sample()
 
-    (
-        ground_truth_pd,
-        companies_noised_pd,
-        positive_noised_pd,
-        negative_pd,
-    ) = pandas_create_noised_data(
-        noise_level,
-        noise_type,
-        noise_count,
-        split_pos_neg,
-        data_path,
-        name_col,
-        index_col,
-        random_seed,
+    (ground_truth_pd, companies_noised_pd, positive_noised_pd, negative_pd) = pandas_create_noised_data(
+        noise_level, noise_type, noise_count, split_pos_neg, data_path, name_col, index_col, random_seed
     )
 
     # Sparkify dataframes
@@ -466,98 +444,18 @@ def create_training_data() -> tuple[pd.DataFrame, Vocabulary]:
         (0, 0.9, "Ahmet Erdem A.S.", "Ahmet Erdem N.V.", "TR", "NL", True, True, False),
         (1, 0.5, "ING Bank BV", "ASD Bank B.V.", "NL", "NL", False, True, False),
         (2, 1.0, "ING Bank BV", "ING Bank B.V.", "NL", "NL", True, True, False),
-        (
-            3,
-            0.7,
-            "ASD Investment Holding BV",
-            "ASD Bank B.V.",
-            None,
-            "NL",
-            True,
-            True,
-            False,
-        ),
-        (
-            4,
-            0.4,
-            "ASD Investment Holding",
-            "Investment Holding BV",
-            "EN",
-            "NL",
-            False,
-            True,
-            False,
-        ),
-        (
-            5,
-            0.2,
-            "Ahmet Erdem A.S.",
-            "Erdem Holding Inc.",
-            "TR",
-            "EN",
-            False,
-            True,
-            False,
-        ),
-        (
-            6,
-            None,
-            "Missing score, no candidates",
-            "Erdem Holding Inc.",
-            "TR",
-            "EN",
-            False,
-            True,
-            False,
-        ),
-        (
-            7,
-            0.9,
-            "Negative names",
-            "Name one in the GT",
-            "TR",
-            "EN",
-            False,
-            False,
-            False,
-        ),
-        (
-            7,
-            0.8,
-            "Negative names",
-            "Name two in the GT",
-            "TR",
-            "EN",
-            False,
-            False,
-            False,
-        ),
+        (3, 0.7, "ASD Investment Holding BV", "ASD Bank B.V.", None, "NL", True, True, False),
+        (4, 0.4, "ASD Investment Holding", "Investment Holding BV", "EN", "NL", False, True, False),
+        (5, 0.2, "Ahmet Erdem A.S.", "Erdem Holding Inc.", "TR", "EN", False, True, False),
+        (6, None, "Missing score, no candidates", "Erdem Holding Inc.", "TR", "EN", False, True, False),
+        (7, 0.9, "Negative names", "Name one in the GT", "TR", "EN", False, False, False),
+        (7, 0.8, "Negative names", "Name two in the GT", "TR", "EN", False, False, False),
         (8, 0.02, "Negative name no candidate", "", "TR", None, False, False, True),
         (9, 0.02, "Positive name no candidate", "", "TR", None, False, True, True),
         (10, 1.0, "Exact match", "Exact match", "NL", "NL", True, True, False),
         (11, 0.8, "Exact match", "Perfect match", "NL", "NL", False, True, False),
-        (
-            12,
-            0.95,
-            "Speling mistake",
-            "Spelling mistake",
-            "NL",
-            "NL",
-            True,
-            True,
-            False,
-        ),
-        (
-            13,
-            0.96,
-            "Data Quality mistake",
-            "Completly wrong",
-            "NL",
-            "NL",
-            True,
-            True,
-            False,
-        ),
+        (12, 0.95, "Speling mistake", "Spelling mistake", "NL", "NL", True, True, False),
+        (13, 0.96, "Data Quality mistake", "Completly wrong", "NL", "NL", True, True, False),
     ]
 
     df_small = pd.DataFrame(
@@ -579,11 +477,7 @@ def create_training_data() -> tuple[pd.DataFrame, Vocabulary]:
     p1 = PandasPreprocessor(
         preprocess_pipeline="preprocess_name"
     )  # The default value for input_col and output_col are for 'name'
-    p2 = PandasPreprocessor(
-        preprocess_pipeline="preprocess_name",
-        input_col="gt_name",
-        output_col="gt_preprocessed",
-    )
+    p2 = PandasPreprocessor(preprocess_pipeline="preprocess_name", input_col="gt_name", output_col="gt_preprocessed")
     df_small = p1.transform(df_small)
     df_small = p2.transform(df_small)
 

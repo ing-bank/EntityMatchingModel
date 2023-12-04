@@ -31,13 +31,7 @@ if spark_installed:
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
 def test_spark_entity_matching_add_supervised_model(spark_session, supervised_model):
     gt = pd.DataFrame(
-        [
-            (1, "John Smith LLC"),
-            (2, "ING LLC"),
-            (3, "John Doe LLC"),
-            (4, "Tzu Sun G.M.B.H"),
-            (5, "Random GMBH"),
-        ],
+        [(1, "John Smith LLC"), (2, "ING LLC"), (3, "John Doe LLC"), (4, "Tzu Sun G.M.B.H"), (5, "Random GMBH")],
         columns=["id", "name"],
     )
     gt = spark_session.createDataFrame(gt)
@@ -113,12 +107,7 @@ def test_spark_entity_matching_add_supervised_model(spark_session, supervised_mo
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
 def test_spark_entity_matching_add_aggregation_layer(spark_session, supervised_model):
     gt = pd.DataFrame(
-        [
-            ["Tzu Sun", 1, "NL"],
-            ["Eddie Eagle", 2, "NL"],
-            ["Adam Mickiewicz", 3, "PL"],
-            ["Mikołaj Kopernik", 4, "PL"],
-        ],
+        [["Tzu Sun", 1, "NL"], ["Eddie Eagle", 2, "NL"], ["Adam Mickiewicz", 3, "PL"], ["Mikołaj Kopernik", 4, "PL"]],
         columns=["name", "id", "country"],
     )
     gt = spark_session.createDataFrame(gt)
@@ -200,13 +189,7 @@ def test_spark_entity_matching_add_aggregation_layer(spark_session, supervised_m
 
 def test_pandas_entity_matching_add_supervised_model(supervised_model):
     gt = pd.DataFrame(
-        [
-            (1, "John Smith LLC"),
-            (2, "ING LLC"),
-            (3, "John Doe LLC"),
-            (4, "Tzu Sun G.M.B.H"),
-            (5, "Random GMBH"),
-        ],
+        [(1, "John Smith LLC"), (2, "ING LLC"), (3, "John Doe LLC"), (4, "Tzu Sun G.M.B.H"), (5, "Random GMBH")],
         columns=["id", "name"],
     )
 
@@ -278,12 +261,7 @@ def test_pandas_entity_matching_add_supervised_model(supervised_model):
 
 def test_pandas_entity_matching_add_aggregation_layer(supervised_model):
     ground_truth = pd.DataFrame(
-        [
-            ["Tzu Sun", 1, "NL"],
-            ["Eddie Eagle", 2, "NL"],
-            ["Adam Mickiewicz", 3, "PL"],
-            ["Mikołaj Kopernik", 4, "PL"],
-        ],
+        [["Tzu Sun", 1, "NL"], ["Eddie Eagle", 2, "NL"], ["Adam Mickiewicz", 3, "PL"], ["Mikołaj Kopernik", 4, "PL"]],
         columns=["name", "id", "country"],
     )
 

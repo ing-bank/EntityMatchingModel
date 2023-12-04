@@ -1,4 +1,5 @@
 """Unit tests for `create_vocabulary`"""
+
 import pandas as pd
 import pytest
 

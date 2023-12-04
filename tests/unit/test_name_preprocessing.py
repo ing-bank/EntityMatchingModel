@@ -40,11 +40,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe(
     ("processor_name", "test_l", "expect_l"),
     [
         ("strip_hyphens", ["Tzu-Sun_BV.a;b,c_ä"], ["Tzu Sun BV.a;b,c ä"]),
-        (
-            "strip_punctuation",
-            ["Tzu-Sun_BV:Chinese'Dutch.a;b,c_ä"],
-            ["Tzu Sun BV Chinese Dutch a b c ä"],
-        ),
+        ("strip_punctuation", ["Tzu-Sun_BV:Chinese'Dutch.a;b,c_ä"], ["Tzu Sun BV Chinese Dutch a b c ä"]),
         (
             "insert_space_around_punctuation",
             ["Tzu-Sun_BV:Chinese'Dutch.a;b,c_ä"],
@@ -62,20 +58,10 @@ THIS_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe(
             ["Tzu-Sun_BV.a;b,c_ä", "Tzu-Sun_BV  morethan1space"],
             ["tzu sun bv a b c a", "tzu sun bv  morethan1space"],
         ),
-        (
-            "preprocess_with_punctuation",
-            ["Tzu-Sun_BV.a;b,c_ä"],
-            ["tzu - sun _ bv . a ; b , c _ a"],
-        ),
+        ("preprocess_with_punctuation", ["Tzu-Sun_BV.a;b,c_ä"], ["tzu - sun _ bv . a ; b , c _ a"]),
         (
             "preprocess_merge_abbr",
-            [
-                "Tzu-Sun_B.V.a;b,c_ä",
-                "Z. S. B. V.",
-                "Z Sun B V",
-                "Z. Sun B.V.",
-                "Z Sun B.V",
-            ],
+            ["Tzu-Sun_B.V.a;b,c_ä", "Z. S. B. V.", "Z Sun B V", "Z. Sun B.V.", "Z Sun B.V"],
             ["tzu sun b v a b c a", "zsbv", "z sun bv", "z  sun bv", "z sun bv"],
         ),
         (
@@ -103,22 +89,8 @@ THIS_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe(
         ),
         (
             "remove_legal_form",
-            [
-                "Tzu-Sun Ltd",
-                "Tzu-Sun GMBH",
-                "Ltd Tzu-Sun",
-                "Tzu Ltd Sun",
-                "Tzu-Sun sp. z o.o.",
-                "Tzu-Sun sp. z.o.o.",
-            ],
-            [
-                "Tzu-Sun",
-                "Tzu-Sun",
-                "Tzu-Sun",
-                "Tzu Sun",
-                "Tzu-Sun",
-                "Tzu-Sun",
-            ],
+            ["Tzu-Sun Ltd", "Tzu-Sun GMBH", "Ltd Tzu-Sun", "Tzu Ltd Sun", "Tzu-Sun sp. z o.o.", "Tzu-Sun sp. z.o.o."],
+            ["Tzu-Sun", "Tzu-Sun", "Tzu-Sun", "Tzu Sun", "Tzu-Sun", "Tzu-Sun"],
         ),
     ],
 )

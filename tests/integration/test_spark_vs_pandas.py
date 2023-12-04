@@ -50,12 +50,7 @@ def test_pandas_and_spark_everything_no_candidates(
     supervised_model,
 ):
     gt = pd.DataFrame(
-        [
-            ["Tzu Sun", 1, "NL"],
-            ["Eddie Eagle", 2, "NL"],
-            ["Adam Mickiewicz", 3, "NL"],
-            ["Mikołaj Kopernik", 4, "NL"],
-        ],
+        [["Tzu Sun", 1, "NL"], ["Eddie Eagle", 2, "NL"], ["Adam Mickiewicz", 3, "NL"], ["Mikołaj Kopernik", 4, "NL"]],
         columns=["name", "id", "country"],
     )
     names = pd.DataFrame(
@@ -90,12 +85,7 @@ def test_pandas_and_spark_everything_no_candidates(
         "aggregation_layer": aggregation_layer,
         "aggregation_method": aggregation_method,
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-                "num_candidates": 10,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1, "num_candidates": 10},
             {
                 "type": "cosine_similarity",
                 "tokenizer": "characters",

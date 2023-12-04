@@ -24,6 +24,4 @@ try:
 except (ImportError, ModuleNotFoundError, AttributeError):
     spark_installed = False
 
-__all__ = [
-    "spark_installed",
-]
+__all__ = ["spark_installed"]

@@ -32,27 +32,14 @@ if spark_installed:
 
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
-@pytest.mark.parametrize(
-    ("supervised_on", "model_filename"),
-    [
-        (False, None),
-        (True, "sem_nm.pkl"),
-    ],
-)
+@pytest.mark.parametrize(("supervised_on", "model_filename"), [(False, None), (True, "sem_nm.pkl")])
 def test_name_matching(spark_session, supervised_on, model_filename, supervised_model):
     """Test the whole name matching pipeline"""
     name_only = True
     nm = SparkEntityMatching(
         {
             "preprocessor": "preprocess_with_punctuation",
-            "indexers": [
-                {
-                    "type": "cosine_similarity",
-                    "tokenizer": "characters",
-                    "ngram": 3,
-                    "num_candidates": 5,
-                }
-            ],
+            "indexers": [{"type": "cosine_similarity", "tokenizer": "characters", "ngram": 3, "num_candidates": 5}],
             "entity_id_col": "id",
             "uid_col": "uid",
             "name_col": "name",
@@ -73,9 +60,7 @@ def test_name_matching(spark_session, supervised_on, model_filename, supervised_
     assert (best_matches["entity_id"] == best_matches["gt_entity_id"]).all()
     assert (best_matches["uid"] == best_matches["gt_uid"]).all()
     pd.testing.assert_series_equal(
-        best_matches["score_0"],
-        pd.Series(1.0, index=best_matches.index, dtype="float32"),
-        check_names=False,
+        best_matches["score_0"], pd.Series(1.0, index=best_matches.index, dtype="float32"), check_names=False
     )
 
     # all scores are not null, since there are no-candidate rows (we match GT against GT)
@@ -100,18 +85,11 @@ def test_name_matching_with_sni(spark_session, uid_in_data, mapping_func):
         "name_col": "name",
         "uid_col": "uid",
         "supervised_on": False,
-        "indexers": [
-            {"type": "sni", "window_length": 3, "mapping_func": mapping_func},
-        ],
+        "indexers": [{"type": "sni", "window_length": 3, "mapping_func": mapping_func}],
     }
 
     ground_truth = spark_session.createDataFrame(
-        [
-            ["ABC", 1, 100],
-            ["Eddie Eagle", 2, 101],
-            ["Tzu Sun", 3, 102],
-        ],
-        ["name", "id", "uid"],
+        [["ABC", 1, 100], ["Eddie Eagle", 2, 101], ["Tzu Sun", 3, 102]], ["name", "id", "uid"]
     )
     if not uid_in_data:
         ground_truth = ground_truth.drop("uid")
@@ -120,10 +98,7 @@ def test_name_matching_with_sni(spark_session, uid_in_data, mapping_func):
     p = p.fit(ground_truth)
     for name, expected_gt in [
         ("Dummy", {3} if mapping_func else {1, 2}),
-        (
-            "   Tzu Sun II ",
-            {2, 3} if mapping_func else {3},
-        ),  # extra spaces in name to verify preprocessing
+        ("   Tzu Sun II ", {2, 3} if mapping_func else {3}),  # extra spaces in name to verify preprocessing
         ("eddie eagle", {1, 2, 3}),  # perfect match (after preprocessing)
         ("Tzu Suu", {3}),
         ("Tzu San", {2, 3}),
@@ -147,19 +122,14 @@ def test_name_matching_with_sni_on_test_dataset(spark_session):
         "name_col": "name",
         "uid_col": "uid",
         "supervised_on": False,
-        "indexers": [
-            {"type": "sni", "window_length": 3},
-        ],
+        "indexers": [{"type": "sni", "window_length": 3}],
     }
     ground_truth, names_to_match = create_test_data(spark_session)
     p = SparkEntityMatching(em_params)
     p = p.fit(ground_truth)
     res = p.transform(names_to_match).toPandas().set_index("name")
     assert len(res.groupby("uid")["score_0"].idxmax()) == 39
-    assert set(res.loc["Eddie Arnheim noise"]["gt_preprocessed"]) == {
-        "eddie eagle",
-        "eddie arnheim",
-    }
+    assert set(res.loc["Eddie Arnheim noise"]["gt_preprocessed"]) == {"eddie eagle", "eddie arnheim"}
     assert len(res["gt_uid"]) == 58
 
 
@@ -171,9 +141,7 @@ def test_name_matching_with_sni_on_test_dataset_with_no_matches(spark_session):
         "name_col": "name",
         "uid_col": "uid",
         "supervised_on": False,
-        "indexers": [
-            {"type": "sni", "window_length": 3},
-        ],
+        "indexers": [{"type": "sni", "window_length": 3}],
         "with_no_matches": True,
     }
     ground_truth, names_to_match = create_test_data(spark_session)
@@ -181,10 +149,7 @@ def test_name_matching_with_sni_on_test_dataset_with_no_matches(spark_session):
     p = p.fit(ground_truth)
     res = p.transform(names_to_match).toPandas().set_index("name")
     assert len(res.groupby("uid")["score_0"].idxmax()) == names_to_match.count()
-    assert set(res.loc["Eddie Arnheim noise"]["gt_preprocessed"]) == {
-        "eddie eagle",
-        "eddie arnheim",
-    }
+    assert set(res.loc["Eddie Arnheim noise"]["gt_preprocessed"]) == {"eddie eagle", "eddie arnheim"}
     # Not matched due to many similar names in names_to_match (one before 'Tzu Chines Sun' and one after 'Tzu Chinese General'):
     assert np.isnan(res.loc["Tzu Chines Sun a"]["gt_uid"])
     assert res["gt_uid"].isnull().sum() == 236
@@ -200,37 +165,19 @@ def test_entity_matching_with_sni(spark_session, supervised_model):
         "entity_id_col": "id",
         "name_col": "name",
         "uid_col": "uid",
-        "indexers": [
-            {"type": "sni", "window_length": 3},
-        ],
+        "indexers": [{"type": "sni", "window_length": 3}],
         "supervised_on": True,
         "supervised_model_dir": supervised_model[0].parent,
         "supervised_model_filename": supervised_model[0].name,
     }
 
     ground_truth = spark_session.createDataFrame(
-        [
-            ["ABC", 1, 100],
-            ["Eddie Eagle", 2, 101],
-            ["Tzu Sun", 3, 102],
-        ],
-        ["name", "id", "uid"],
+        [["ABC", 1, 100], ["Eddie Eagle", 2, 101], ["Tzu Sun", 3, 102]], ["name", "id", "uid"]
     )
 
     query_data = spark_session.createDataFrame(
-        [
-            ["Tzu Sun", "A1", 100, 1.0, -1, 1],
-            ["Tzu San", "A1", 100, 1.0, -1, 2],
-            ["A Tzu San", "A1", 100, 1.0, -1, 3],
-        ],
-        [
-            "name",
-            "account",
-            "amount",
-            "counterparty_account_count_distinct",
-            "id",
-            "uid",
-        ],
+        [["Tzu Sun", "A1", 100, 1.0, -1, 1], ["Tzu San", "A1", 100, 1.0, -1, 2], ["A Tzu San", "A1", 100, 1.0, -1, 3]],
+        ["name", "account", "amount", "counterparty_account_count_distinct", "id", "uid"],
     )
 
     def add_em_feat(x):
@@ -252,13 +199,7 @@ def test_entity_matching_with_sni(spark_session, supervised_model):
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
 @pytest.mark.parametrize(
-    ("supervised_on", "aggregation_layer"),
-    [
-        (False, False),
-        (False, True),
-        (True, False),
-        (True, True),
-    ],
+    ("supervised_on", "aggregation_layer"), [(False, False), (False, True), (True, False), (True, True)]
 )
 def test_entity_matching_with_custom_columns(supervised_on, aggregation_layer, spark_session, supervised_model):
     em_params = {
@@ -269,36 +210,19 @@ def test_entity_matching_with_custom_columns(supervised_on, aggregation_layer, s
         "entity_id_col": "custom_index",
         "name_col": "custom_name",
         "freq_col": "custom_amount",
-        "indexers": [
-            {"type": "cosine_similarity", "tokenizer": "words"},
-        ],
+        "indexers": [{"type": "cosine_similarity", "tokenizer": "words"}],
         "supervised_on": supervised_on,
         "supervised_model_dir": supervised_model[0].parent,
         "supervised_model_filename": supervised_model[0].name,
     }
 
     ground_truth = spark_session.createDataFrame(
-        [
-            ["ABC", 1, 100],
-            ["Eddie Eagle", 2, 101],
-            ["Tzu Sun", 3, 102],
-        ],
-        ["custom_name", "custom_index", "custom_uid"],
+        [["ABC", 1, 100], ["Eddie Eagle", 2, 101], ["Tzu Sun", 3, 102]], ["custom_name", "custom_index", "custom_uid"]
     )
 
     query_data = spark_session.createDataFrame(
-        [
-            ["Tzu Sun", "A1", 100, -1, 1],
-            ["Tzu San", "A1", 100, -1, 2],
-            ["A Tzu San", "A1", 100, -1, 3],
-        ],
-        [
-            "custom_name",
-            "custom_account",
-            "custom_amount",
-            "custom_index",
-            "custom_uid",
-        ],
+        [["Tzu Sun", "A1", 100, -1, 1], ["Tzu San", "A1", 100, -1, 2], ["A Tzu San", "A1", 100, -1, 3]],
+        ["custom_name", "custom_account", "custom_amount", "custom_index", "custom_uid"],
     )
 
     def add_em_feat(x):
@@ -325,14 +249,7 @@ def test_entity_matching_with_custom_columns(supervised_on, aggregation_layer, s
 
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
-@pytest.mark.parametrize(
-    "uid_col",
-    [
-        ("custom_uid"),
-        ("id"),
-        ("uid"),
-    ],
-)
+@pytest.mark.parametrize("uid_col", [("custom_uid"), ("id"), ("uid")])
 def test_name_matching_with_multiple_indexers(spark_session, uid_col, tmp_path):
     spark_session.sparkContext.setCheckpointDir(str(tmp_path / "checkpoints"))
 
@@ -361,24 +278,16 @@ def test_name_matching_with_multiple_indexers(spark_session, uid_col, tmp_path):
     }
 
     ground_truth = spark_session.createDataFrame(
-        [
-            ["Tzu Sun", 10, 100],
-            ["Eddie Eagle", 20, 200],
-        ],
-        ["name", "id", uid_col if uid_col != "id" else "not_used"],
+        [["Tzu Sun", 10, 100], ["Eddie Eagle", 20, 200]], ["name", "id", uid_col if uid_col != "id" else "not_used"]
     )
 
     p = SparkEntityMatching(em_params)
     p = p.fit(ground_truth)
-    for name, expected_id in [
-        ("Tzu Sun II", 10),
-        ("Zhi San", 10),
-    ]:
+    for name, expected_id in [("Tzu Sun II", 10), ("Zhi San", 10)]:
         expected_uid = expected_id if uid_col == "id" else expected_id * 10
 
         query_data = spark_session.createDataFrame(
-            [[name, 10, 100]],
-            ["name", "id", uid_col if uid_col != "id" else "not_used"],
+            [[name, 10, 100]], ["name", "id", uid_col if uid_col != "id" else "not_used"]
         )
         res = p.transform(query_data)
         res = res.toPandas()
@@ -396,14 +305,7 @@ def test_entity_matching(spark_session, supervised_model):
     nm = SparkEntityMatching(
         {
             "preprocessor": "preprocess_with_punctuation",
-            "indexers": [
-                {
-                    "type": "cosine_similarity",
-                    "tokenizer": "characters",
-                    "ngram": 3,
-                    "num_candidates": 5,
-                }
-            ],
+            "indexers": [{"type": "cosine_similarity", "tokenizer": "characters", "ngram": 3, "num_candidates": 5}],
             "entity_id_col": "id",
             "uid_col": "uid",
             "name_col": "name",
@@ -416,12 +318,7 @@ def test_entity_matching(spark_session, supervised_model):
     )
 
     ground_truth_pd = pd.DataFrame(
-        [
-            ["Tzu Sun", 1, "NL"],
-            ["Eddie Eagle", 2, "NL"],
-            ["Adam Mickiewicz", 3, "PL"],
-            ["Mikołaj Kopernik", 4, "PL"],
-        ],
+        [["Tzu Sun", 1, "NL"], ["Eddie Eagle", 2, "NL"], ["Adam Mickiewicz", 3, "PL"], ["Mikołaj Kopernik", 4, "PL"]],
         columns=["name", "id", "country"],
     )
     ground_truth_pd["uid"] = ground_truth_pd.index + 100
@@ -454,11 +351,7 @@ def test_entity_matching(spark_session, supervised_model):
     assert len(matched) == query_data.toPandas()["account"].nunique()
     assert matched["account"].nunique() == len(matched)
     matched = matched.set_index("account")
-    for account, expected_best_match, _expected_candidates in [
-        ("A1", 1, {1, 2}),
-        ("A2", 2, {2}),
-        ("A3", 4, {2, 4}),
-    ]:
+    for account, expected_best_match, _expected_candidates in [("A1", 1, {1, 2}), ("A2", 2, {2}), ("A3", 4, {2, 4})]:
         # These tests are based on sem.pkl trained a very dummy fake pairs create_training_data()
         # therefore the expected_best_match is wrong TODO: use a model trained on proper data
         assert account in matched.index
@@ -527,14 +420,7 @@ def test_full_positive(spark_session):
     # Vectorize pipeline only
     nm_params = {
         "preprocessor": "preprocess_with_punctuation",
-        "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-                "num_candidates": 5,
-            }
-        ],
+        "indexers": [{"type": "cosine_similarity", "tokenizer": "words", "ngram": 1, "num_candidates": 5}],
         "entity_id_col": "id",
         "uid_col": "uid",
         "name_col": "name",
@@ -578,17 +464,14 @@ def test_full_positive(spark_session):
 
     # Compute the dot product between the 2 vectors
     candidates_exp3 = candidates_exp2.withColumn(
-        "dot_product",
-        dot_product_udf(F.col("correct__features"), F.col("candidate__features")),
+        "dot_product", dot_product_udf(F.col("correct__features"), F.col("candidate__features"))
     )
 
     # It should be the same values
     candidates_exp3_pd = candidates_exp3.toPandas()
     candidates_exp3_pd = candidates_exp3_pd.fillna(0)
     np.testing.assert_allclose(
-        candidates_exp3_pd["score_0"].values,
-        candidates_exp3_pd["dot_product"].values,
-        rtol=1e-06,
+        candidates_exp3_pd["score_0"].values, candidates_exp3_pd["dot_product"].values, rtol=1e-06
     )
 
 
@@ -615,22 +498,14 @@ def test_entity_matching_duplicates_in_gt(spark_session, supervised_model):
     }
 
     ground_truth_pd = pd.DataFrame(
-        [["Tzu Sun", 1, "NL"] for _ in range(10)] + [["Eddie Eagle", 2, "NL"]],
-        columns=["name", "id", "country"],
+        [["Tzu Sun", 1, "NL"] for _ in range(10)] + [["Eddie Eagle", 2, "NL"]], columns=["name", "id", "country"]
     )
     ground_truth_pd["uid"] = ground_truth_pd.index + 100
     ground_truth = spark_session.createDataFrame(ground_truth_pd)
 
     query_data_pd = pd.DataFrame(
         [["Tzu Sun", "A1", 100, 1.0, 1.0, "NL"]],
-        columns=[
-            "name",
-            "account",
-            "id",
-            "amount",
-            "counterparty_account_count_distinct",
-            "country",
-        ],
+        columns=["name", "account", "id", "amount", "counterparty_account_count_distinct", "country"],
     )
     query_data_pd["uid"] = query_data_pd.index + 10000
     query_data = spark_session.createDataFrame(query_data_pd)
@@ -664,14 +539,7 @@ def test_name_matching_with_blocking(spark_session):
             "with_no_matches": True,
         }
     )
-    gt = spark_session.createDataFrame(
-        [
-            ["a Tzu", 1],
-            ["b Tzu", 2],
-            ["d Sun", 3],
-        ],
-        ["name", "id"],
-    )
+    gt = spark_session.createDataFrame([["a Tzu", 1], ["b Tzu", 2], ["d Sun", 3]], ["name", "id"])
     names = spark_session.createDataFrame(
         [
             ["a Tzu", 100],  # should be matched only to "a Tzu" id:1
@@ -687,18 +555,8 @@ def test_name_matching_with_blocking(spark_session):
     assert np.isnan(res.loc[101]["gt_entity_id"])
 
 
-indexer1 = {
-    "type": "cosine_similarity",
-    "num_candidates": 3,
-    "tokenizer": "words",
-    "ngram": 1,
-}
-indexer2 = {
-    "type": "cosine_similarity",
-    "num_candidates": 3,
-    "tokenizer": "characters",
-    "ngram": 2,
-}
+indexer1 = {"type": "cosine_similarity", "num_candidates": 3, "tokenizer": "words", "ngram": 1}
+indexer2 = {"type": "cosine_similarity", "num_candidates": 3, "tokenizer": "characters", "ngram": 2}
 indexer3 = {"type": "sni", "num_candidates": 3, "window_length": 3}
 
 
@@ -776,37 +634,20 @@ def test_em_output_columns(spark_session, name_only, supervised_on, keep_all_col
     }
 
     if supervised_on:
-        expected_columns |= {
-            "nm_score",
-        }
+        expected_columns |= {"nm_score"}
 
     if supervised_on or aggregation_layer:
-        expected_columns |= {
-            "best_match",
-            "best_rank",
-        }
+        expected_columns |= {"best_match", "best_rank"}
 
     if not name_only:
-        expected_columns |= {
-            "account",
-            "country",
-            "gt_country",
-        }  # 'country' already in input_columns
+        expected_columns |= {"account", "country", "gt_country"}  # 'country' already in input_columns
 
     if aggregation_layer:
         expected_columns |= {"agg_score", "counterparty_account_count_distinct"}
         # => EM => grouped per (account,id) => we don't have the uid, extra, or the intermediary anymore
-        expected_columns -= {
-            "uid",
-            "extra",
-            "amount",
-            "country",
-            "gt_country",
-        }
+        expected_columns -= {"uid", "extra", "amount", "country", "gt_country"}
         if not supervised_on:
-            expected_columns |= {
-                "score_0",
-            }
+            expected_columns |= {"score_0"}
     else:
         if keep_all_cols:
             indexers_type = [indexer["type"] for indexer in indexers]

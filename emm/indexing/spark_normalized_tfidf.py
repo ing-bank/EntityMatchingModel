@@ -121,8 +121,7 @@ class SparkNormalizedTfidfModel(Model, SparkReadable, SparkWriteable, DefaultPar
     def _initialize(self):
         self.idf_normalizer_udf = sf.udf(
             idf_normalizer_getter(
-                binary_countvectorizer=self.binary_countvectorizer,
-                max_idf_square=pow(self.max_idf, 2),
+                binary_countvectorizer=self.binary_countvectorizer, max_idf_square=pow(self.max_idf, 2)
             ),
             VectorUDT(),
         )
@@ -138,8 +137,7 @@ class SparkNormalizedTfidfModel(Model, SparkReadable, SparkWriteable, DefaultPar
         """
         dataset = self.spark_idf_model.transform(dataset)
         return dataset.withColumn(
-            self.output_col,
-            self.idf_normalizer_udf(sf.col(self.count_col), sf.col(self.token_col), sf.col("idf")),
+            self.output_col, self.idf_normalizer_udf(sf.col(self.count_col), sf.col(self.token_col), sf.col("idf"))
         )
 
 

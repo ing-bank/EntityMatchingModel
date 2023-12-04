@@ -22,6 +22,7 @@ By default, those tests are skipped, to run it use:
 
     pytest --benchmark-enable tests
 """
+
 from functools import partial
 
 import numpy as np
@@ -49,12 +50,12 @@ def num(x):
         x = int(x)
     if x >= 10**6:
         if x % 10**6 == 0:
-            return f"{x//10**6}m"
-        return f"{x/10**6:.1f}m"
+            return f"{x // 10**6}m"
+        return f"{x / 10**6:.1f}m"
     if x >= 10**4:
         if x % 10**3 == 0:
-            return f"{x//10**3}k"
-        return f"{x/10**3:.1f}k"
+            return f"{x // 10**3}k"
+        return f"{x / 10**3:.1f}k"
     return str(x)
 
 
@@ -103,21 +104,13 @@ def test_bench_pandas_name_preprocessing(benchmark, gt_size, kvk_dataset):
 
 
 @pytest.mark.parametrize(
-    ("stage", "size"),
-    [
-        ("fit", 10**5),
-        ("fit", 5 * 10**5),
-        ("transform", 10**5),
-        ("transform", 5 * 10**5),
-    ],
+    ("stage", "size"), [("fit", 10**5), ("fit", 5 * 10**5), ("transform", 10**5), ("transform", 5 * 10**5)]
 )
 def test_bench_pandas_tfidf(benchmark, stage, size, kvk_dataset):
     benchmark.extra_info["title"] = f"TF-IDF ({stage})"
     benchmark.extra_info["label"] = f"n={num(size)}"
     names = increase_dataset(kvk_dataset, size)["name"]
-    vec = PandasNormalizedTfidfVectorizer(
-        analyzer="word",
-    )
+    vec = PandasNormalizedTfidfVectorizer(analyzer="word")
     if stage == "fit":
         benchmark.pedantic(lambda: vec.fit(names), rounds=1)
     else:
@@ -148,11 +141,7 @@ def test_bench_cossim_indexer(benchmark, spark_session, kvk_dataset, mode, stage
 
     if mode == "pandas":
         idx = PandasCosSimIndexer(
-            input_col="preprocessed",
-            tokenizer="words",
-            cos_sim_lower_bound=0.1,
-            num_candidates=10,
-            n_jobs=n_jobs,
+            input_col="preprocessed", tokenizer="words", cos_sim_lower_bound=0.1, num_candidates=10, n_jobs=n_jobs
         )
     else:
         gt["uid"] = range(len(gt))
@@ -218,11 +207,7 @@ def test_bench_pandas_calc_features(benchmark, size, kvk_dataset):
     candidates = gen_candidates(kvk_dataset, size)
 
     obj = PandasFeatureExtractor(
-        name1_col="name1",
-        name2_col="name2",
-        uid_col="uid",
-        gt_uid_col="gt_uid",
-        score_columns=["score"],
+        name1_col="name1", name2_col="name2", uid_col="uid", gt_uid_col="gt_uid", score_columns=["score"]
     )
     benchmark.pedantic(lambda: obj.transform(candidates), rounds=1)
 
@@ -234,8 +219,7 @@ def test_bench_pandas_calc_name_features(benchmark, size, kvk_dataset):
     pfe = PandasFeatureExtractor()
     candidates = gen_candidates(kvk_dataset, size)
     res = benchmark.pedantic(
-        lambda: calc_name_features(candidates, funcs=pfe.name_features, name1="name1", name2="name2"),
-        rounds=1,
+        lambda: calc_name_features(candidates, funcs=pfe.name_features, name1="name1", name2="name2"), rounds=1
     )
     assert len(res) == len(candidates)
 
@@ -245,10 +229,7 @@ def test_bench_pandas_calc_hits_features(benchmark, size, kvk_dataset):
     benchmark.extra_info["title"] = "Calc hits features"
     benchmark.extra_info["label"] = f"n={num(size)}"
     candidates = gen_candidates(kvk_dataset, size)
-    res = benchmark.pedantic(
-        lambda: compute_vocabulary_features(candidates, col1="name1", col2="name2"),
-        rounds=1,
-    )
+    res = benchmark.pedantic(lambda: compute_vocabulary_features(candidates, col1="name1", col2="name2"), rounds=1)
     assert len(res) == len(candidates)
 
 
@@ -292,7 +273,7 @@ def test_bench_pandas_name_matching(stage, benchmark, gt_size, supervised_on, kv
                     "n_jobs": 8,
                     "num_candidates": 10,
                     "cos_sim_lower_bound": 0.1,
-                },
+                }
             ],
         }
     )

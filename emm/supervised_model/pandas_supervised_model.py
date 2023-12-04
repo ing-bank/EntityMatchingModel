@@ -19,17 +19,16 @@
 
 from __future__ import annotations
 
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any, Mapping
 
-import pandas as pd
 from sklearn.base import TransformerMixin
 
 from emm.loggers import Timer
 from emm.loggers.logger import logger
-from emm.supervised_model.base_supervised_model import (
-    BaseSupervisedModel,
-    calc_features_from_sm,
-)
+from emm.supervised_model.base_supervised_model import BaseSupervisedModel, calc_features_from_sm
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 class PandasSupervisedLayerTransformer(TransformerMixin, BaseSupervisedModel):

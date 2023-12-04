@@ -24,17 +24,9 @@ from scipy.sparse import csr_matrix
 
 from emm.data.create_data import retrieve_kvk_test_sample
 from emm.helper import spark_installed
-from emm.helper.spark_utils import (
-    check_uid,
-)
-from emm.helper.util import (
-    rename_columns,
-)
-from emm.indexing.spark_indexing_utils import (
-    collect_matrix,
-    down_casting_int,
-    groupby,
-)
+from emm.helper.spark_utils import check_uid
+from emm.helper.util import rename_columns
+from emm.indexing.spark_indexing_utils import collect_matrix, down_casting_int, groupby
 from tests.utils import create_test_data, get_n_top_sparse
 
 if spark_installed:
@@ -85,7 +77,7 @@ def test_groupby():
     np.testing.assert_array_equal(res1["a"], [0, 20, 40, 60, 80])
     np.testing.assert_array_equal(res1["b"], [10, 30, 50, 70, 90])
 
-    res2 = groupby(data, groups, postprocess_func=lambda group: sum(group))
+    res2 = groupby(data, groups, postprocess_func=sum)
     assert set(res2.keys()) == {"a", "b"}
     assert res2["a"] == sum([0, 20, 40, 60, 80])
     assert res2["b"] == sum([10, 30, 50, 70, 90])
@@ -119,12 +111,7 @@ def test_collect_matrix_type(spark_session, blocking_func):
         parameters={
             "preprocessor": "preprocess_merge_abbr",
             "indexers": [
-                {
-                    "type": "cosine_similarity",
-                    "tokenizer": "characters",
-                    "ngram": 2,
-                    "blocking_func": blocking_func,
-                }
+                {"type": "cosine_similarity", "tokenizer": "characters", "ngram": 2, "blocking_func": blocking_func}
             ],
             "entity_id_col": "id",
             "uid_col": "uid",
@@ -143,12 +130,7 @@ def test_collect_matrix_type(spark_session, blocking_func):
     em.fit(ground_truth)
 
     names_to_match = spark_session.createDataFrame(
-        [
-            ["ABC", 1, 100],
-            ["Eddie Eagle", 2, 101],
-            ["Tzu Sun", 3, 102],
-        ],
-        ["name", "id", "uid"],
+        [["ABC", 1, 100], ["Eddie Eagle", 2, 101], ["Tzu Sun", 3, 102]], ["name", "id", "uid"]
     )
 
     names_to_match = em.transform(names_to_match)

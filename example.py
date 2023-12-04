@@ -45,10 +45,7 @@ def example():
             "num_candidates": 5,  # max 5 candidates per name-to-match
             "cos_sim_lower_bound": 0.2,  # lower bound on cosine similarity
         },
-        {
-            "type": "sni",
-            "window_length": 3,
-        },  # sorted neighbouring indexing window of size 3.
+        {"type": "sni", "window_length": 3},  # sorted neighbouring indexing window of size 3.
     ]
     em_params = {
         "name_only": True,  # only consider name information for matching
@@ -97,14 +94,7 @@ def example():
     n_correct = len(best_candidates[best_candidates.correct])
     n_incorrect = len(best_candidates[~best_candidates.correct])
 
-    return (
-        n_ground_truth,
-        n_noised_names,
-        n_names_to_match,
-        n_best_match,
-        n_correct,
-        n_incorrect,
-    )
+    return (n_ground_truth, n_noised_names, n_names_to_match, n_best_match, n_correct, n_incorrect)
 
 
 def example_pandas():
@@ -131,10 +121,7 @@ def example_pandas():
             "num_candidates": 5,  # max 5 candidates per name-to-match
             "cos_sim_lower_bound": 0.2,  # lower bound on cosine similarity
         },
-        {
-            "type": "sni",
-            "window_length": 3,
-        },  # sorted neighbouring indexing window of size 3.
+        {"type": "sni", "window_length": 3},  # sorted neighbouring indexing window of size 3.
     ]
     emm_config = {
         "name_only": True,  # only consider name information for matching
@@ -176,36 +163,13 @@ def example_spark(spark):
     # (Otherwise same settings as the pandas example above.)
 
     ground_truth = spark.createDataFrame(
-        [
-            ("Apple", 1),
-            ("Microsoft", 2),
-            ("Google", 3),
-            ("Amazon", 4),
-            ("Netflix", 5),
-            ("Spotify", 6),
-        ],
-        ["name", "id"],
+        [("Apple", 1), ("Microsoft", 2), ("Google", 3), ("Amazon", 4), ("Netflix", 5), ("Spotify", 6)], ["name", "id"]
     )
     train_names = spark.createDataFrame(
-        [
-            ("MicorSoft", 2),
-            ("Gugle", 3),
-            ("Netfliks", 5),
-            ("Spot-on", 6),
-            ("Spot-off", 6),
-        ],
-        ["name", "id"],
+        [("MicorSoft", 2), ("Gugle", 3), ("Netfliks", 5), ("Spot-on", 6), ("Spot-off", 6)], ["name", "id"]
     )
     test_names = spark.createDataFrame(
-        [
-            ("Apl", 1),
-            ("Aplle", 1),
-            ("Microbloft", 2),
-            ("Netflfli", 5),
-            ("amz", 4),
-            ("googol", 3),
-        ],
-        ["name", "id"],
+        [("Apl", 1), ("Aplle", 1), ("Microbloft", 2), ("Netflfli", 5), ("amz", 4), ("googol", 3)], ["name", "id"]
     )
 
     # two example name-pair candidate generators: character-based cosine similarity and sorted neighbouring indexing
@@ -217,10 +181,7 @@ def example_spark(spark):
             "num_candidates": 5,  # max 5 candidates per name-to-match
             "cos_sim_lower_bound": 0.2,  # lower bound on cosine similarity
         },
-        {
-            "type": "sni",
-            "window_length": 3,
-        },  # sorted neighbouring indexing window of size 3.
+        {"type": "sni", "window_length": 3},  # sorted neighbouring indexing window of size 3.
     ]
     emm_config = {
         "name_only": True,  # only consider name information for matching

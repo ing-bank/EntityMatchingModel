@@ -18,6 +18,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """Spark Implementation of Sorted Neighbourhood Indexing (SNI)"""
+
 from __future__ import annotations
 
 from functools import reduce
@@ -39,12 +40,7 @@ from emm.loggers.logger import logger
 
 
 class SparkSortedNeighbourhoodIndexer(
-    Estimator,
-    HasInputCol,
-    HasOutputCol,
-    DefaultParamsReadable,
-    DefaultParamsWritable,
-    SNBaseIndexer,
+    Estimator, HasInputCol, HasOutputCol, DefaultParamsReadable, DefaultParamsWritable, SNBaseIndexer
 ):
     """Unfitted spark estimator for sorted neighbourhood indexing"""
 
@@ -259,10 +255,7 @@ class SNIMatcherModel(
                 .withColumn("indexer_score", F.lit(1 - abs(i) / (w + 1)).cast(FloatType()))
                 .withColumn("indexer_rank", F.lit(i).cast(IntegerType()))
                 .withColumnRenamed("_curr_rank", "_sni_rank")
-                .join(
-                    data_gt.select(F.col(self.uid_col).alias("gt_uid"), "_sni_rank"),
-                    on="_sni_rank",
-                )
+                .join(data_gt.select(F.col(self.uid_col).alias("gt_uid"), "_sni_rank"), on="_sni_rank")
                 .drop("_sni_rank")
             )
 

@@ -17,12 +17,7 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from emm.features.features_lef import (
-    extract_lef,
-    get_business_type,
-    make_combi,
-    matching_legal_terms,
-)
+from emm.features.features_lef import extract_lef, get_business_type, make_combi, matching_legal_terms
 
 
 def test_extract_lef():

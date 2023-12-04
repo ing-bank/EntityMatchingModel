@@ -25,15 +25,10 @@ from typing import Any, Callable
 import cleanco
 from unidecode import unidecode
 
-from emm.preprocessing.abbreviation_util import (
-    abbreviations_to_words,
-    legal_abbreviations_to_words,
-)
+from emm.preprocessing.abbreviation_util import abbreviations_to_words, legal_abbreviations_to_words
 
 
-def create_func_dict(
-    use_spark: bool = True,
-) -> dict[str, Callable[[Any], Any] | Callable[[str], str]]:
+def create_func_dict(use_spark: bool = True) -> dict[str, Callable[[Any], Any] | Callable[[str], str]]:
     if use_spark:
         import emm.preprocessing.spark_functions as F
     else:
@@ -41,10 +36,7 @@ def create_func_dict(
 
     def map_shorthands(name):
         for pat, shorthand in [
-            (
-                r"ver(?:eniging)? v(?:an)? (\w*)(?:eigenaren|eigenaars)",
-                r"vve \1",
-            ),
+            (r"ver(?:eniging)? v(?:an)? (\w*)(?:eigenaren|eigenaars)", r"vve \1"),
             (r"stichting", r"stg"),
             (r"straat", r"str"),
             (
@@ -84,9 +76,7 @@ def create_func_dict(
         "map_shorthands": map_shorthands,
         # Merge & separated abbreviations by removing & and the spaces between them
         "merge_&": F.regex_replace(
-            r"(\s|^)(\w)\s*&\s*(\w)(\s|$)",
-            r"$1$2$3$4" if use_spark else r"\1\2\3\4",
-            simple=True,
+            r"(\s|^)(\w)\s*&\s*(\w)(\s|$)", r"$1$2$3$4" if use_spark else r"\1\2\3\4", simple=True
         ),
         # remove legal form
         "remove_legal_form": F.run_custom_function(

@@ -59,37 +59,19 @@ def test_normalized_tfidf(spark_session):
 
     test_list = [
         {
-            "row": (
-                0,
-                "Tzu Anmot Eddie",
-                "NL",
-                "0001",
-                1.0,
-            ),  # 3 tokens, all in the vocabulary
+            "row": (0, "Tzu Anmot Eddie", "NL", "0001", 1.0),  # 3 tokens, all in the vocabulary
             "expected_tokens": ["tzu", "anmot", "eddie"],
             "expected_vector_norm_range": [1 - 1e-7, 1 + 1e-7],
             "expected_vector_len": 3,
         },
         {
-            "row": (
-                1,
-                "Tzu General Chinese Moon",
-                "NL",
-                "0002",
-                1.0,
-            ),  # 4 token, only 3 in vocabulary
+            "row": (1, "Tzu General Chinese Moon", "NL", "0002", 1.0),  # 4 token, only 3 in vocabulary
             "expected_tokens": ["tzu", "general", "chinese", "moon"],
             "expected_vector_norm_range": [0 + 1e-7, 1 - 1e-7],
             "expected_vector_len": 3,
         },
         {
-            "row": (
-                2,
-                "Super Awesome WBAA Moon",
-                "NL",
-                "0003",
-                1.0,
-            ),  # 4 token, 0 in vocabulary
+            "row": (2, "Super Awesome WBAA Moon", "NL", "0003", 1.0),  # 4 token, 0 in vocabulary
             "expected_tokens": ["super", "awesome", "wbaa", "moon"],
             "expected_vector_norm_range": [0, 0],
             "expected_vector_len": 0,
@@ -103,8 +85,7 @@ def test_normalized_tfidf(spark_session):
     ]
 
     names_to_match = spark_session.createDataFrame(
-        [el["row"] for el in test_list],
-        schema=["uid", "name", "country", "account", "amount"],
+        [el["row"] for el in test_list], schema=["uid", "name", "country", "account", "amount"]
     )
     names_to_match = em.transform(names_to_match)
     names_to_match = names_to_match.toPandas()

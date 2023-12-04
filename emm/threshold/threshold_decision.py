@@ -87,11 +87,7 @@ def get_threshold_curves_parameters(
     best_positive_df = best_candidate_df[best_candidate_df.positive_set]
     best_negative_df = best_candidate_df[~best_candidate_df.positive_set]
     n_positive_names_to_match = len(best_positive_df)
-    name_sets = {
-        "all": best_candidate_df,
-        "positive": best_positive_df,
-        "negative": best_negative_df,
-    }
+    name_sets = {"all": best_candidate_df, "positive": best_positive_df, "negative": best_negative_df}
 
     agg_name = _get_threshold_agg_name(aggregation_layer, aggregation_method)
     name_set_params = {}
@@ -111,10 +107,7 @@ def get_threshold_curves_parameters(
     return {"threshold_curves": {agg_name: name_set_params}}
 
 
-def decide_threshold(
-    dataset_scored,
-    aggregation_layer: bool = False,
-):
+def decide_threshold(dataset_scored, aggregation_layer: bool = False):
     """Get threshold decision curves
 
     Args:

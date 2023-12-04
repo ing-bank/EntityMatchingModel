@@ -20,9 +20,7 @@
 from emm.helper import spark_installed
 from emm.preprocessing.pandas_preprocessor import PandasPreprocessor
 
-__all__ = [
-    "PandasPreprocessor",
-]
+__all__ = ["PandasPreprocessor"]
 
 
 if spark_installed:

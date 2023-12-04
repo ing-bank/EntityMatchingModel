@@ -31,11 +31,7 @@ from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
 from pyspark.sql import DataFrame
 
 from emm.helper.spark_custom_reader_writer import SparkReadable, SparkWriteable
-from emm.helper.spark_utils import (
-    logical_repartitioning,
-    set_spark_job_group,
-    spark_checkpoint,
-)
+from emm.helper.spark_utils import logical_repartitioning, set_spark_job_group, spark_checkpoint
 from emm.indexing.spark_sni import SNIMatcherModel
 from emm.loggers.logger import logger
 
@@ -128,13 +124,7 @@ class SparkCandidateSelectionEstimator(
 
 
 class SparkCandidateSelectionModel(
-    Model,
-    HasInputCol,
-    HasOutputCol,
-    SparkReadable,
-    SparkWriteable,
-    DefaultParamsReadable,
-    DefaultParamsWritable,
+    Model, HasInputCol, HasOutputCol, SparkReadable, SparkWriteable, DefaultParamsReadable, DefaultParamsWritable
 ):
     """Fitted pipeline stage that aggregates candidates from multiple indexers."""
 
@@ -237,10 +227,7 @@ class SparkCandidateSelectionModel(
                 idx._unpersist()
             matcheds.append(matched_df)
 
-        set_spark_job_group(
-            "CandidateSelectionModel._transform()",
-            f"len(indexers)={len(self.fitted_indexers)}",
-        )
+        set_spark_job_group("CandidateSelectionModel._transform()", f"len(indexers)={len(self.fitted_indexers)}")
         logger.info("SparkCandidateSelectionModel._transform: %d indexers.", len(self.fitted_indexers))
 
         full_matched_df = reduce(partial(DataFrame.unionByName, allowMissingColumns=True), matcheds)
@@ -263,12 +250,8 @@ class SparkCandidateSelectionModel(
         # Handling the case when cosine_similarity == False
         if "gt_uid" in full_matched_df.columns:
             # Join ground_truth information
-            full_matched_df, ground_truth_add_col = join_ground_truth_info(
-                full_matched_df,
-                self.ground_truth_df,
-                self.index_col,
-                self.uid_col,
-                self.carry_on_cols,
+            full_matched_df, _ = join_ground_truth_info(
+                full_matched_df, self.ground_truth_df, self.index_col, self.uid_col, self.carry_on_cols
             )
 
             # Join back for names_to_match columns
@@ -323,11 +306,7 @@ def join_ground_truth_info(matched_df, ground_truth_df, index_col, uid_col, carr
     ground_truth_candidates_df = ground_truth_candidates_df.withColumnRenamed("preprocessed", "gt_preprocessed")
     # name -> gt_name
     ground_truth_candidates_df = ground_truth_candidates_df.withColumnRenamed("name", "gt_name")
-    ground_truth_add_col = [
-        "gt_entity_id",
-        "gt_name",
-        "gt_preprocessed",
-    ]
+    ground_truth_add_col = ["gt_entity_id", "gt_name", "gt_preprocessed"]
     if "country" in ground_truth_candidates_df.columns:
         ground_truth_candidates_df = ground_truth_candidates_df.withColumnRenamed("country", "gt_country")
         ground_truth_add_col.append("gt_country")

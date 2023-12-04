@@ -21,6 +21,7 @@
 We should not configure the logger, that is the responsibility of the user.
 By default, in Python the log level is set to WARNING.
 """
+
 import logging
 
 logger = logging.getLogger("emm")

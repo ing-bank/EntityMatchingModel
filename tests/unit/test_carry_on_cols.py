@@ -41,10 +41,7 @@ def test_carry_on_cols_pandas():
     )
 
     indexers = [
-        {
-            "type": "sni",
-            "window_length": 3,
-        },  # sorted neighbouring indexing window of size 3.
+        {"type": "sni", "window_length": 3}  # sorted neighbouring indexing window of size 3.
     ]
     emm_config = {
         "name_only": True,  # only consider name information for matching
@@ -83,23 +80,12 @@ def test_carry_on_cols_spark(spark_session):
         ["name", "id", "a"],
     )
     names = spark_session.createDataFrame(
-        [
-            ("Aplle", 2),
-            ("MicorSoft", 2),
-            ("Gugle", 2),
-            ("amz", 2),
-            ("Netfliks", 2),
-            ("Spot-off", 2),
-        ],
-        ["name", "b"],
+        [("Aplle", 2), ("MicorSoft", 2), ("Gugle", 2), ("amz", 2), ("Netfliks", 2), ("Spot-off", 2)], ["name", "b"]
     )
 
     # two example name-pair candidate generators: character-based cosine similarity and sorted neighbouring indexing
     indexers = [
-        {
-            "type": "sni",
-            "window_length": 3,
-        },  # sorted neighbouring indexing window of size 3.
+        {"type": "sni", "window_length": 3}  # sorted neighbouring indexing window of size 3.
     ]
     emm_config = {
         "name_only": True,  # only consider name information for matching

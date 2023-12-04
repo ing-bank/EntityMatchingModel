@@ -142,9 +142,7 @@ class PandasCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
                 # next: slow step
                 self.gt_enc_t = groupby(gt_enc, gt_blocking, postprocess_func=lambda x: x.T)
                 self.gt_uid_values = groupby(
-                    self.gt_uid_values,
-                    gt_blocking,
-                    postprocess_func=lambda x: np.array(x, dtype="int64"),
+                    self.gt_uid_values, gt_blocking, postprocess_func=lambda x: np.array(x, dtype="int64")
                 )
             else:
                 self.gt_enc_t = gt_enc.T
@@ -152,11 +150,7 @@ class PandasCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
             timer.log_param("n", len(X))
         return self
 
-    def transform(
-        self,
-        X: pd.DataFrame,
-        multiple_indexers: bool | None = None,
-    ) -> pd.DataFrame:
+    def transform(self, X: pd.DataFrame, multiple_indexers: bool | None = None) -> pd.DataFrame:
         """`transform` matches `X` dataset to the previously fitted ground truth.
 
         Args:
@@ -182,19 +176,10 @@ class PandasCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
             if self.blocking_func is not None:
                 X_blocking = X[self.input_col].map(self.blocking_func)
                 X_enc = groupby(X_enc, X_blocking)
-                uid = groupby(X.index.values, X_blocking, postprocess_func=lambda x: pd.Index(x))
+                uid = groupby(X.index.values, X_blocking, postprocess_func=pd.Index)
 
             def get_work_chunks() -> (
-                Generator[
-                    tuple[
-                        scipy.sparse.csr_matrix,
-                        scipy.sparse.csr_matrix,
-                        np.ndarray,
-                        np.ndarray,
-                    ],
-                    None,
-                    None,
-                ]
+                Generator[tuple[scipy.sparse.csr_matrix, scipy.sparse.csr_matrix, np.ndarray, np.ndarray], None, None]
             ):
                 if self.blocking_func is not None:
                     for k, X_enc_part in X_enc.items():
@@ -206,12 +191,7 @@ class PandasCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
             candidates: list[pd.DataFrame] | pd.DataFrame = []
 
             timer.label("cossim")
-            for (
-                curr_gt_enc_t,
-                curr_X_enc,
-                curr_gt_uid_values,
-                curr_uid_values,
-            ) in get_work_chunks():
+            for curr_gt_enc_t, curr_X_enc, curr_gt_uid_values, curr_uid_values in get_work_chunks():
                 if self.spark_session is not None and len(X) > 2 * 10**5:
                     cossim = self._spark_cossim(curr_gt_enc_t, curr_X_enc)
                 else:
@@ -272,11 +252,7 @@ class PandasCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
         """Spark implementation of cossim by Max Baak (adapted by TW)"""
         assert gt_enc_t.dtype == self.dtype
         assert X_enc.dtype == self.dtype
-        logger.debug(
-            "calculating cossim using spark gt_enc_t=%s X_enc=%s",
-            repr(gt_enc_t),
-            repr(X_enc),
-        )
+        logger.debug("calculating cossim using spark gt_enc_t=%s X_enc=%s", repr(gt_enc_t), repr(X_enc))
         sc = self.spark_session.sparkContext
         spark_gt = sc.broadcast(gt_enc_t)
         # np.array_split cannot be used here due to sparse array X_enc
@@ -284,20 +260,14 @@ class PandasCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
         rdd = sc.parallelize(X_chunks, len(X_chunks))
 
         def calc(
-            row: scipy.sparse.csr_matrix,
-            num_candidates: scipy.sparse.csr_matrix,
-            cos_sim_lower_bound: float,
+            row: scipy.sparse.csr_matrix, num_candidates: scipy.sparse.csr_matrix, cos_sim_lower_bound: float
         ) -> scipy.sparse.csr_matrix:
             left = row
             right = spark_gt.value
             return awesome_cossim_topn(left, right, num_candidates, cos_sim_lower_bound)
 
         cs_rdd = rdd.map(
-            partial(
-                calc,
-                num_candidates=self.num_candidates,
-                cos_sim_lower_bound=self.cos_sim_lower_bound,
-            )
+            partial(calc, num_candidates=self.num_candidates, cos_sim_lower_bound=self.cos_sim_lower_bound)
         )
         cs_list = cs_rdd.collect()
         return scipy.sparse.vstack(cs_list, dtype=self.dtype)

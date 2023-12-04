@@ -19,6 +19,7 @@
 
 import os
 import tempfile
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -31,17 +32,9 @@ if spark_installed:
 
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
-@pytest.mark.parametrize(
-    ("spark_dump", "spark_load"),
-    [(False, False), (True, True)],
-)
+@pytest.mark.parametrize(("spark_dump", "spark_load"), [(False, False), (True, True)])
 def test_serialization(spark_dump, spark_load, spark_session, kvk_dataset, supervised_model):
-    df = kvk_dataset.head(200).rename(
-        columns={
-            "name": "custom_name",
-            "id": "custom_id",
-        }
-    )
+    df = kvk_dataset.head(200).rename(columns={"name": "custom_name", "id": "custom_id"})
     gt, names = df.iloc[: len(df) // 2], df.iloc[len(df) // 2 :]
     if spark_dump or spark_load:
         sdf_gt = spark_session.createDataFrame(gt)
@@ -56,9 +49,7 @@ def test_serialization(spark_dump, spark_load, spark_session, kvk_dataset, super
             "aggregation_layer": False,
             "supervised_model_dir": supervised_model[2].parent,
             "supervised_model_filename": supervised_model[2].name,
-            "indexers": [
-                {"type": "cosine_similarity", "tokenizer": "characters", "ngram": 1},
-            ],
+            "indexers": [{"type": "cosine_similarity", "tokenizer": "characters", "ngram": 1}],
         }
         m = SparkEntityMatching(em_params) if spark_dump else PandasEntityMatching(em_params)
         m.fit(sdf_gt if spark_dump else gt)
@@ -92,12 +83,7 @@ def test_serialization(spark_dump, spark_load, spark_session, kvk_dataset, super
 
 
 def test_serialization_of_full_model_pandas(kvk_dataset, supervised_model):
-    df = kvk_dataset.head(200).rename(
-        columns={
-            "name": "custom_name",
-            "id": "custom_id",
-        }
-    )
+    df = kvk_dataset.head(200).rename(columns={"name": "custom_name", "id": "custom_id"})
     gt, names = df.iloc[: len(df) // 2], df.iloc[len(df) // 2 :]
     with tempfile.TemporaryDirectory() as tmpdir:
         emo_fn = os.path.join(tmpdir, "emo_full.joblib")
@@ -109,9 +95,7 @@ def test_serialization_of_full_model_pandas(kvk_dataset, supervised_model):
             "aggregation_layer": False,
             "supervised_model_dir": supervised_model[2].parent,
             "supervised_model_filename": supervised_model[2].name,
-            "indexers": [
-                {"type": "cosine_similarity", "tokenizer": "characters", "ngram": 1},
-            ],
+            "indexers": [{"type": "cosine_similarity", "tokenizer": "characters", "ngram": 1}],
         }
         m = PandasEntityMatching(em_params)
         m.fit(gt, copy_ground_truth=True)
@@ -135,12 +119,7 @@ def test_serialization_of_full_model_pandas(kvk_dataset, supervised_model):
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
 def test_serialization_of_full_model_pandas_to_spark(spark_session, kvk_dataset, supervised_model):
-    df = kvk_dataset.head(200).rename(
-        columns={
-            "name": "custom_name",
-            "id": "custom_id",
-        }
-    )
+    df = kvk_dataset.head(200).rename(columns={"name": "custom_name", "id": "custom_id"})
     gt, names = df.iloc[: len(df) // 2], df.iloc[len(df) // 2 :]
     gt2 = spark_session.createDataFrame(gt)
     names2 = spark_session.createDataFrame(names)
@@ -154,9 +133,7 @@ def test_serialization_of_full_model_pandas_to_spark(spark_session, kvk_dataset,
             "aggregation_layer": False,
             "supervised_model_dir": supervised_model[2].parent,
             "supervised_model_filename": supervised_model[2].name,
-            "indexers": [
-                {"type": "cosine_similarity", "tokenizer": "characters", "ngram": 1},
-            ],
+            "indexers": [{"type": "cosine_similarity", "tokenizer": "characters", "ngram": 1}],
         }
         m = PandasEntityMatching(em_params)
         m.fit(gt, copy_ground_truth=True)
@@ -180,12 +157,7 @@ def test_serialization_of_full_model_pandas_to_spark(spark_session, kvk_dataset,
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
 def test_serialization_spark_save_load(spark_session, kvk_dataset, supervised_model):
-    df = kvk_dataset.head(200).rename(
-        columns={
-            "name": "custom_name",
-            "id": "custom_id",
-        }
-    )
+    df = kvk_dataset.head(200).rename(columns={"name": "custom_name", "id": "custom_id"})
     gt, names = df.iloc[: len(df) // 2], df.iloc[len(df) // 2 :]
     gt2 = spark_session.createDataFrame(gt)
     names2 = spark_session.createDataFrame(names)
@@ -200,9 +172,7 @@ def test_serialization_spark_save_load(spark_session, kvk_dataset, supervised_mo
             "aggregation_layer": False,
             "supervised_model_dir": supervised_model[2].parent,
             "supervised_model_filename": supervised_model[2].name,
-            "indexers": [
-                {"type": "cosine_similarity", "tokenizer": "characters", "ngram": 1},
-            ],
+            "indexers": [{"type": "cosine_similarity", "tokenizer": "characters", "ngram": 1}],
         }
         m = SparkEntityMatching(em_params)
         m.fit(gt2, copy_ground_truth=True)
@@ -222,16 +192,11 @@ def test_serialization_spark_save_load(spark_session, kvk_dataset, supervised_mo
 
 
 def test_serialization_pandas_save_load(kvk_dataset):
-    df = kvk_dataset.head(200).rename(
-        columns={
-            "name": "custom_name",
-            "id": "custom_id",
-        }
-    )
+    df = kvk_dataset.head(200).rename(columns={"name": "custom_name", "id": "custom_id"})
     gt, names = df.iloc[: len(df) // 2], df.iloc[len(df) // 2 :]
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        emo_fn = os.path.join(tmpdir, "emo_pandas_full.joblib")
+        emo_fn = Path(tmpdir) / "emo_pandas_full.joblib"
         em_params = {
             "name_col": "custom_name",
             "entity_id_col": "custom_id",
@@ -251,10 +216,10 @@ def test_serialization_pandas_save_load(kvk_dataset):
         # make sure that there are a lot of matches
         assert res["gt_entity_id"].notnull().mean() > 0.9
 
-        m.save(emo_fn)
-        assert os.path.exists(emo_fn), "missing serialized model file"
+        m.save(str(emo_fn))
+        assert Path(emo_fn).exists(), "missing serialized model file"
 
-        m2 = PandasEntityMatching.load(emo_fn)
+        m2 = PandasEntityMatching.load(str(emo_fn))
         assert m2.parameters["name_col"] == "custom_name"
         res2 = m2.transform(names)
 

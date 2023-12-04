@@ -101,14 +101,7 @@ def create_spark_tfidf(binary_countvectorizer=False, tokenizer="words", ngram=1)
 
     stages += [NGram(inputCol="tokens", outputCol="ngram_tokens", n=ngram)]
 
-    stages += [
-        CountVectorizer(
-            inputCol="ngram_tokens",
-            outputCol="tf",
-            vocabSize=2**25,
-            binary=binary_countvectorizer,
-        )
-    ]
+    stages += [CountVectorizer(inputCol="ngram_tokens", outputCol="tf", vocabSize=2**25, binary=binary_countvectorizer)]
 
     stages += [
         SparkNormalizedTfidfVectorizer(
@@ -275,10 +268,7 @@ def compare_name_matching_results(res1, res2, ntop, min_score, eps=0.00001):
     res1 = prep(res1, source="res1")
     res2 = prep(res2, source="res2")
     not_in_one = pd.concat(
-        [res1[~res1.index.isin(res2.index)], res2[~res2.index.isin(res1.index)]],
-        ignore_index=True,
-        axis=0,
-        sort=False,
+        [res1[~res1.index.isin(res2.index)], res2[~res2.index.isin(res1.index)]], ignore_index=True, axis=0, sort=False
     )
     in_both = res1.join(res2["score"].rename("score2"), how="inner")
     in_both["score_diff"] = (in_both["score"] - in_both["score2"]).abs()
@@ -287,16 +277,7 @@ def compare_name_matching_results(res1, res2, ntop, min_score, eps=0.00001):
     bad_not_in_one = not_in_one[(not_in_one.score_rank <= ntop) & (not_in_one.score >= min_score)]
     bad_not_in_one = bad_not_in_one.sort_values(by=["entity_id", "score_rank", "source"])
     bad_not_in_one = bad_not_in_one[
-        [
-            "entity_id",
-            "gt_entity_id",
-            "score",
-            "score_rank",
-            "source",
-            "name",
-            "gt_name",
-            "source",
-        ]
+        ["entity_id", "gt_entity_id", "score", "score_rank", "source", "name", "gt_name", "source"]
     ]
 
     # for matches that appear in both sources, we consider BAD if score diff > eps
@@ -308,8 +289,7 @@ def compare_name_matching_results(res1, res2, ntop, min_score, eps=0.00001):
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
 @pytest.mark.parametrize(
-    ("supervised_on", "use_blocking"),
-    [(False, False), (False, True), (True, False), (True, True)],
+    ("supervised_on", "use_blocking"), [(False, False), (False, True), (True, False), (True, True)]
 )
 def test_pandas_name_matching_vs_spark(spark_session, kvk_dataset, supervised_on, use_blocking, supervised_model):
     """This test verifies the compatibility of results from Spark & Pandas name matching.
@@ -350,21 +330,13 @@ def test_pandas_name_matching_vs_spark(spark_session, kvk_dataset, supervised_on
 
     p = PandasEntityMatching(em_params)
     p = p.fit(gt.copy())
-    res_from_pandas = p.transform(names.copy()).rename(
-        columns={
-            score_col: "score",
-        }
-    )
+    res_from_pandas = p.transform(names.copy()).rename(columns={score_col: "score"})
 
     s = SparkEntityMatching(em_params)
     s = s.fit(spark_session.createDataFrame(gt))
     res_from_spark = s.transform(spark_session.createDataFrame(names))
     res_from_spark = res_from_spark.toPandas()
-    res_from_spark = res_from_spark.rename(
-        columns={
-            score_col: "score",
-        }
-    )
+    res_from_spark = res_from_spark.rename(columns={score_col: "score"})
     res_from_spark = res_from_spark[["entity_id", "name", "gt_entity_id", "gt_name", "score"]]
 
     # all scores should be from range 0..1 (and None for no-candidate rows)
@@ -372,18 +344,13 @@ def test_pandas_name_matching_vs_spark(spark_session, kvk_dataset, supervised_on
     assert res_from_spark["score"].round(decimals=5).between(0, 1, inclusive="both").all()
 
     compare_name_matching_results(
-        res_from_pandas,
-        res_from_spark,
-        ntop=ntop,
-        min_score=min_score,
-        eps=min_score_tolerance,
+        res_from_pandas, res_from_spark, ntop=ntop, min_score=min_score, eps=min_score_tolerance
     )
 
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
 @pytest.mark.parametrize(
-    ("supervised_on", "use_blocking"),
-    [(False, False), (False, True), (True, False), (True, True)],
+    ("supervised_on", "use_blocking"), [(False, False), (False, True), (True, False), (True, True)]
 )
 def test_pandas_name_matching_vs_spark_with_no_matches(
     spark_session, kvk_dataset, supervised_on, use_blocking, supervised_model
@@ -427,21 +394,13 @@ def test_pandas_name_matching_vs_spark_with_no_matches(
 
     p = PandasEntityMatching(em_params)
     p = p.fit(gt.copy())
-    res_from_pandas = p.transform(names.copy()).rename(
-        columns={
-            score_col: "score",
-        }
-    )
+    res_from_pandas = p.transform(names.copy()).rename(columns={score_col: "score"})
 
     s = SparkEntityMatching(em_params)
     s = s.fit(spark_session.createDataFrame(gt))
     res_from_spark = s.transform(spark_session.createDataFrame(names))
     res_from_spark = res_from_spark.toPandas()
-    res_from_spark = res_from_spark.rename(
-        columns={
-            score_col: "score",
-        }
-    )
+    res_from_spark = res_from_spark.rename(columns={score_col: "score"})
     res_from_spark = res_from_spark[["entity_id", "name", "gt_entity_id", "gt_name", "score"]]
 
     # double check if number of no-candidate rows is reasonable
@@ -452,28 +411,14 @@ def test_pandas_name_matching_vs_spark_with_no_matches(
     assert res_from_spark["score"].fillna(0).round(decimals=5).between(0, 1, inclusive="both").all()
 
     compare_name_matching_results(
-        res_from_pandas,
-        res_from_spark,
-        ntop=ntop,
-        min_score=min_score,
-        eps=min_score_tolerance,
+        res_from_pandas, res_from_spark, ntop=ntop, min_score=min_score, eps=min_score_tolerance
     )
 
 
 def test_pandas_entity_matching_without_indexers():
-    em_params = {
-        "name_only": True,
-        "supervised_on": False,
-        "indexers": [],
-    }
+    em_params = {"name_only": True, "supervised_on": False, "indexers": []}
     ground_truth = pd.DataFrame(
-        [
-            ["Tzu Sun", 1],
-            ["Eddie Eagle", 2],
-            ["Adam Mickiewicz", 3],
-            ["Mikołaj Kopernik", 4],
-        ],
-        columns=["name", "id"],
+        [["Tzu Sun", 1], ["Eddie Eagle", 2], ["Adam Mickiewicz", 3], ["Mikołaj Kopernik", 4]], columns=["name", "id"]
     )
     p = PandasEntityMatching(em_params)
     p = p.fit(ground_truth)
@@ -509,12 +454,7 @@ def test_pandas_entity_matching_simple_case(supervised_model):
     }
 
     ground_truth = pd.DataFrame(
-        [
-            ["Tzu Sun", 1, "NL"],
-            ["Eddie Eagle", 2, "NL"],
-            ["Adam Mickiewicz", 3, "PL"],
-            ["Mikołaj Kopernik", 4, "PL"],
-        ],
+        [["Tzu Sun", 1, "NL"], ["Eddie Eagle", 2, "NL"], ["Adam Mickiewicz", 3, "PL"], ["Mikołaj Kopernik", 4, "PL"]],
         columns=["name", "id", "country"],
     )
 
@@ -551,11 +491,7 @@ def test_pandas_entity_matching_simple_case(supervised_model):
 
     best_match = matched[matched.best_match].set_index("account")["gt_entity_id"]
     candidates = matched.groupby("account")["gt_entity_id"].unique()
-    for account, expected_best_match, expected_candidates in [
-        ("A1", 1, {1}),
-        ("A2", 2, {2}),
-        ("A3", 4, {4}),
-    ]:
+    for account, expected_best_match, expected_candidates in [("A1", 1, {1}), ("A2", 2, {2}), ("A3", 4, {4})]:
         # These tests are based on sem_nm.pkl trained a very dummy fake pairs create_training_data()
         # therefore the expected_best_match is wrong TODO: use a model trained on proper data
         assert account in best_match.index
@@ -584,10 +520,7 @@ def default_em_params():
 def test_pandas_name_matching_with_two_supervised_models(kvk_dataset, supervised_model):
     gt, names = split_dataset(kvk_dataset)
     p = PandasEntityMatching(
-        {
-            **default_em_params(),
-            "supervised_on": True,
-        },
+        {**default_em_params(), "supervised_on": True},
         supervised_models={
             "nm_score_with_rank": {
                 "model": load_pickle(supervised_model[2].name, supervised_model[2].parent),
@@ -627,19 +560,10 @@ def test_pandas_entity_matching_duplicates_in_gt(supervised_model):
     }
 
     ground_truth = pd.DataFrame(
-        [["Tzu Sun", 1, "NL"] for _ in range(10)]
-        + [
-            ["Eddie Eagle", 2, "NL"],
-        ],
-        columns=["name", "id", "country"],
+        [["Tzu Sun", 1, "NL"] for _ in range(10)] + [["Eddie Eagle", 2, "NL"]], columns=["name", "id", "country"]
     )
 
-    query_data = pd.DataFrame(
-        [
-            ["Tzu Sun", "A1", 100],
-        ],
-        columns=["name", "account", "id"],
-    )
+    query_data = pd.DataFrame([["Tzu Sun", "A1", 100]], columns=["name", "account", "id"])
     query_data["amount"] = 1.0
     query_data["counterparty_account_count_distinct"] = 1.0
     query_data["country"] = "PL"
@@ -715,12 +639,7 @@ def test_pandas_entity_matching(spark_session, kvk_dataset, supervised_model):
     )
     best_from_spark = (
         res_from_spark[["account", "gt_entity_id", "agg_score"]]
-        .rename(
-            columns={
-                "gt_entity_id": "spark_best_match_id",
-                "agg_score": "spark_best_match_score",
-            }
-        )
+        .rename(columns={"gt_entity_id": "spark_best_match_id", "agg_score": "spark_best_match_score"})
         .set_index("account", verify_integrity=True)
         .sort_index()
     )
@@ -776,11 +695,7 @@ def test_pandas_sni_on_kvk_dataset(spark_session, kvk_dataset, use_mapping):
         "name_col": "name",
         "supervised_on": False,
         "indexers": [
-            {
-                "type": "sni",
-                "window_length": 3,
-                "mapping_func": ((lambda x: x[::-1]) if use_mapping else None),
-            },
+            {"type": "sni", "window_length": 3, "mapping_func": ((lambda x: x[::-1]) if use_mapping else None)}
         ],
     }
 
@@ -845,18 +760,8 @@ def test_multi_indexers(kvk_dataset):
 
 
 def test_multi_indexers_simple_case():
-    gt = pd.DataFrame(
-        {
-            "name": ["abc", "b c d"],
-            "id": [1, 2],
-        }
-    )
-    names = pd.DataFrame(
-        {
-            "name": ["abc a", "abd", "xyz"],
-            "id": [10, 20, 30],
-        }
-    )
+    gt = pd.DataFrame({"name": ["abc", "b c d"], "id": [1, 2]})
+    names = pd.DataFrame({"name": ["abc a", "abd", "xyz"], "id": [10, 20, 30]})
     em_params = {
         "name_only": True,
         "entity_id_col": "id",
@@ -871,10 +776,7 @@ def test_multi_indexers_simple_case():
     p = PandasEntityMatching(em_params)
     p = p.fit(gt)
     res = p.transform(names).set_index(["entity_id", "gt_entity_id"], drop=True)
-    for X_id, gt_id, exp_cossim_w1, exp_cossim_n1 in [
-        (10, 1, 1, 1),
-        (20, 1, 0, 1),
-    ]:
+    for X_id, gt_id, exp_cossim_w1, exp_cossim_n1 in [(10, 1, 1, 1), (20, 1, 0, 1)]:
         assert (X_id, gt_id) in res.index
         row = res.loc[(X_id, gt_id)]
         assert row["cossim_w1"] == exp_cossim_w1
@@ -882,18 +784,8 @@ def test_multi_indexers_simple_case():
 
 
 def test_multi_indexers_simple_case_with_no_matches():
-    gt = pd.DataFrame(
-        {
-            "name": ["abc", "b c d"],
-            "id": [1, 2],
-        }
-    )
-    names = pd.DataFrame(
-        {
-            "name": ["abc a", "abd", "xyz"],
-            "id": [10, 20, 30],
-        }
-    )
+    gt = pd.DataFrame({"name": ["abc", "b c d"], "id": [1, 2]})
+    names = pd.DataFrame({"name": ["abc a", "abd", "xyz"], "id": [10, 20, 30]})
     em_params = {
         "name_only": True,
         "entity_id_col": "id",
@@ -909,11 +801,7 @@ def test_multi_indexers_simple_case_with_no_matches():
     p = PandasEntityMatching(em_params)
     p = p.fit(gt)
     res = p.transform(names).set_index(["entity_id", "gt_entity_id"], drop=True)
-    for X_id, gt_id, exp_cossim_w1, exp_cossim_n1 in [
-        (10, 1, 1, 1),
-        (20, 1, 0, 1),
-        (30, None, 0, 0),
-    ]:
+    for X_id, gt_id, exp_cossim_w1, exp_cossim_n1 in [(10, 1, 1, 1), (20, 1, 0, 1), (30, None, 0, 0)]:
         assert (X_id, gt_id) in res.index
         row = res.loc[(X_id, gt_id)]
         assert row["cossim_w1"] == exp_cossim_w1
@@ -962,11 +850,7 @@ def test_silent_em_output(capsys, caplog, kvk_training_dataset, supervised_model
         "supervised_model_dir": supervised_model[2].parent,
         "supervised_model_filename": supervised_model[2].name,
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1},
             {"type": "sni", "window_length": 5},
         ],
     }
@@ -1004,19 +888,11 @@ def test_calc_sm_features(spark_session, kvk_training_dataset, supervised_model)
     p = PandasEntityMatching(em_params)
     p.fit(gt)
     res = p.transform(names)
-    assert {
-        "nm_score_feat_score_0",
-        "nm_score_feat_norm_ed",
-        "nm_score_feat_score_0_rank",
-    } <= set(res.columns)
+    assert {"nm_score_feat_score_0", "nm_score_feat_norm_ed", "nm_score_feat_score_0_rank"} <= set(res.columns)
 
     p2 = SparkEntityMatching(em_params)
     p2.fit(spark_session.createDataFrame(gt))
     res2 = p2.transform(spark_session.createDataFrame(names))
-    assert {
-        "nm_score_feat_score_0",
-        "nm_score_feat_norm_ed",
-        "nm_score_feat_score_0_rank",
-    } <= set(res2.columns)
+    assert {"nm_score_feat_score_0", "nm_score_feat_norm_ed", "nm_score_feat_score_0_rank"} <= set(res2.columns)
     res2_pd = res2.toPandas()
     assert all(res.filter(regex="^nm_score_feat").columns == res2_pd.filter(regex="^nm_score_feat").columns)

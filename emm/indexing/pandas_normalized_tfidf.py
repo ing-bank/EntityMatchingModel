@@ -18,6 +18,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """Customized TFIDF vectorization."""
+
 from __future__ import annotations
 
 from functools import partial
@@ -52,14 +53,8 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
         Args:
             kwargs: kew-word arguments are same as TfidfVectorizer.
         """
-        kwargs.update(
-            {
-                "norm": None,
-                "smooth_idf": True,
-                "lowercase": True,
-            }
-        )
-        if kwargs.get("analyzer") in ["word", None]:
+        kwargs.update({"norm": None, "smooth_idf": True, "lowercase": True})
+        if kwargs.get("analyzer") in {"word", None}:
             kwargs["token_pattern"] = r"\w+"
         super().__init__(**kwargs)
 
@@ -139,11 +134,7 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
 
         return res
 
-    def fit_transform(
-        self,
-        raw_documents: pd.Series | pd.DataFrame,
-        y: Any | None = None,
-    ) -> scipy.sparse.csr_matrix:
+    def fit_transform(self, raw_documents: pd.Series | pd.DataFrame, y: Any | None = None) -> scipy.sparse.csr_matrix:
         """Implementation of fit followed by transform
 
         Args:
@@ -156,11 +147,7 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
         self.fit(raw_documents)
         return self.transform(raw_documents)
 
-    def transform_parallel(
-        self,
-        X: pd.Series | pd.DataFrame,
-        n_jobs: int = -1,
-    ) -> scipy.sparse.csr_matrix:
+    def transform_parallel(self, X: pd.Series | pd.DataFrame, n_jobs: int = -1) -> scipy.sparse.csr_matrix:
         """Parallel apply the fitted TFIDF vectorizer
 
         Inspired by: https://github.com/scikit-learn/scikit-learn/issues/7635#issuecomment-254407618

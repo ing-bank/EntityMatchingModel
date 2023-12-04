@@ -68,7 +68,7 @@ class Timer(ContextDecorator):
         Raises:
             ValueError: if reserved or used name is provided
         """
-        if name in ["start", "end"]:
+        if name in {"start", "end"}:
             msg = f"Reserved name '{name}'"
             raise ValueError(msg)
         if name in self.measurements:

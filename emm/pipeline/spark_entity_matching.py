@@ -20,11 +20,10 @@
 from __future__ import annotations
 
 import re
-from typing import Any, Callable, Literal, Mapping
+from typing import TYPE_CHECKING, Any, Callable, Literal, Mapping
 
 import numpy as np
 import pandas as pd
-from pyspark.ml import Pipeline, PipelineModel
 from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
@@ -35,12 +34,7 @@ from emm.data.prepare_name_pairs import prepare_name_pairs
 from emm.helper.io import IOFunc
 from emm.helper.spark_custom_reader_writer import SparkReadable, SparkWriteable
 from emm.helper.spark_ml_pipeline import EMPipeline
-from emm.helper.spark_utils import (
-    auto_repartitioning,
-    check_uid,
-    set_partitions,
-    set_spark_job_group,
-)
+from emm.helper.spark_utils import auto_repartitioning, check_uid, set_partitions, set_spark_job_group
 from emm.indexing.base_indexer import BaseIndexer
 from emm.indexing.spark_candidate_selection import SparkCandidateSelectionEstimator
 from emm.indexing.spark_cos_sim_matcher import SparkCosSimIndexer
@@ -53,22 +47,16 @@ from emm.preprocessing.spark_preprocessor import SparkPreprocessor
 from emm.supervised_model.base_supervised_model import train_model
 from emm.supervised_model.spark_supervised_model import SparkSupervisedLayerEstimator
 
+if TYPE_CHECKING:
+    from pyspark.ml import Pipeline, PipelineModel
+
 
 class SparkEntityMatching(
-    SparkReadable,
-    SparkWriteable,
-    BaseEntityMatching,
-    DefaultParamsReadable,
-    DefaultParamsWritable,
+    SparkReadable, SparkWriteable, BaseEntityMatching, DefaultParamsReadable, DefaultParamsWritable
 ):
     """Spark implementation of EntityMatching"""
 
-    SERIALIZE_ATTRIBUTES = (
-        "create_pipeline",
-        "parameters",
-        "supervised_models",
-        "model",
-    )
+    SERIALIZE_ATTRIBUTES = ("create_pipeline", "parameters", "supervised_models", "model")
 
     def __init__(
         self,
@@ -163,7 +151,8 @@ class SparkEntityMatching(
             # To create the pipeline we need Spark (because of RegexTokenizer) which we don't have when we set threshold_curves
             self._create_pipeline()
 
-    def _create_single_indexer(self, params, type=None):
+    @staticmethod
+    def _create_single_indexer(params, type=None):
         if type == "sni":
             return (
                 SparkSortedNeighbourhoodIndexer(
@@ -185,10 +174,7 @@ class SparkEntityMatching(
         indexers = []
         for idx_params in params["indexers"]:
             if isinstance(idx_params, dict):
-                if idx_params["type"] not in [
-                    "cosine_similarity",
-                    "sni",
-                ]:
+                if idx_params["type"] not in {"cosine_similarity", "sni"}:
                     msg = f"idx_params.type={idx_params['type']} not supported yet"
                     raise ValueError(msg)
                 idx = self._create_single_indexer(
@@ -220,9 +206,7 @@ class SparkEntityMatching(
         if isinstance(preprocessor, AbstractPreprocessor):
             self.pipeline_preprocessor = preprocessor
         else:
-            self.pipeline_preprocessor = SparkPreprocessor(
-                preprocessor,
-            )
+            self.pipeline_preprocessor = SparkPreprocessor(preprocessor)
         stages += [self.pipeline_preprocessor]
         # step 2: Candidate name-pair selection (= indexing)
         self.pipeline_candidate_selection = self._create_multiple_indexers(self.parameters)
@@ -273,8 +257,7 @@ class SparkEntityMatching(
         """
         logger.info("SparkEntityMatching.fit()")
         set_spark_job_group(
-            "Fit",
-            f"Fit and broadcast model (ground truth matrix) to workers. Parameters: {self.parameters}",
+            "Fit", f"Fit and broadcast model (ground truth matrix) to workers. Parameters: {self.parameters}"
         )
 
         self._check_relevant_columns_present(ground_truth_df, ground_truth=True)
@@ -547,8 +530,7 @@ class SparkEntityMatching(
         self._initialize_supervised_models()
         self._disable_multiprocessing_all_models()
         self.pipeline_supervised_layer = SparkSupervisedLayerEstimator(
-            self.supervised_models,
-            return_features=self.parameters["return_sm_features"],
+            self.supervised_models, return_features=self.parameters["return_sm_features"]
         )
         # dummy call, this simply creates the spark _model_
         sm_model = self.pipeline_supervised_layer.fit(dataset=None)
@@ -615,8 +597,7 @@ class SparkEntityMatching(
         if return_features is not None:
             self.parameters["return_sm_features"] = return_features
         supervised_layer = SparkSupervisedLayerEstimator(
-            self.supervised_models,
-            return_features=self.parameters["return_sm_features"],
+            self.supervised_models, return_features=self.parameters["return_sm_features"]
         )
         # dummy call, this simply creates the "trained" spark supervised model that includes new sklearn model
         sm_model = supervised_layer.fit(dataset=None)

@@ -27,14 +27,7 @@ from tests.utils import read_markdown
 
 def test_readme_example():
     # test the example in the readme
-    (
-        n_ground_truth,
-        n_noised_names,
-        n_names_to_match,
-        n_best_match,
-        n_correct,
-        n_incorrect,
-    ) = example()
+    (n_ground_truth, n_noised_names, n_names_to_match, n_best_match, n_correct, _) = example()
 
     assert n_ground_truth == 6800
     assert n_noised_names == 6800

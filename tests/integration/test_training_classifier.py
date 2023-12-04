@@ -39,11 +39,7 @@ def test_increase_window_pandas(kvk_training_dataset):
         "entity_id_col": "id",
         "name_col": "name",
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1},
             {"type": "sni", "window_length": 5},
         ],
     }
@@ -68,11 +64,7 @@ def test_decrease_window_pandas(kvk_training_dataset):
         "entity_id_col": "id",
         "name_col": "name",
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1},
             {"type": "sni", "window_length": 5},
         ],
     }
@@ -101,11 +93,7 @@ def test_increase_window_spark(kvk_training_dataset, spark_session):
         "entity_id_col": "id",
         "name_col": "name",
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1},
             {"type": "sni", "window_length": 5},
         ],
     }
@@ -131,11 +119,7 @@ def test_decrease_window_spark(kvk_training_dataset, spark_session):
         "entity_id_col": "id",
         "name_col": "name",
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1},
             {"type": "sni", "window_length": 5},
         ],
     }
@@ -157,11 +141,7 @@ def test_create_name_pairs_pandas(kvk_training_dataset):
         "entity_id_col": "id",
         "name_col": "name",
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1},
             {"type": "sni", "window_length": 5},
         ],
     }
@@ -194,11 +174,7 @@ def test_create_name_pairs_spark(kvk_training_dataset, spark_session):
         "entity_id_col": "id",
         "name_col": "name",
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1},
             {"type": "sni", "window_length": 5},
         ],
     }
@@ -228,11 +204,7 @@ def test_fit_classifier_pandas(kvk_training_dataset):
         "entity_id_col": "id",
         "name_col": "name",
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1},
             {"type": "sni", "window_length": 5},
         ],
     }
@@ -271,11 +243,7 @@ def test_fit_classifier_spark(kvk_training_dataset, spark_session):
         "entity_id_col": "id",
         "name_col": "name",
         "indexers": [
-            {
-                "type": "cosine_similarity",
-                "tokenizer": "words",
-                "ngram": 1,
-            },
+            {"type": "cosine_similarity", "tokenizer": "words", "ngram": 1},
             {"type": "sni", "window_length": 5},
         ],
     }

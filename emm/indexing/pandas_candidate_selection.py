@@ -19,14 +19,18 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pandas as pd
 from sklearn.base import TransformerMixin
 
 from emm.helper.util import string_columns_to_pyarrow
-from emm.indexing.base_indexer import BaseIndexer
 from emm.indexing.pandas_sni import PandasSortedNeighbourhoodIndexer
 from emm.loggers import Timer
+
+if TYPE_CHECKING:
+    from emm.indexing.base_indexer import BaseIndexer
 
 
 def select_with_prefix(df: pd.DataFrame, cols: list[str], prefix: str) -> pd.DataFrame:
@@ -193,29 +197,17 @@ class PandasCandidateSelectionTransformer(TransformerMixin):
                 candidates = pd.concat([candidates, not_matched], ignore_index=True, sort=False)
 
             if self.uid_col is not None:
-                candidates = candidates.join(
-                    select_with_prefix(self.gt, [self.uid_col], "gt"),
-                    on="gt_uid",
-                    how="left",
-                )
+                candidates = candidates.join(select_with_prefix(self.gt, [self.uid_col], "gt"), on="gt_uid", how="left")
                 if self.uid_col in X.columns:
                     candidates = candidates.join(X[[self.uid_col]], on="uid", how="left")
 
             if self.carry_on_cols:
                 candidates = candidates.join(
-                    select_with_prefix(
-                        self.gt,
-                        [c for c in self.carry_on_cols if c in self.gt.columns],
-                        "gt",
-                    ),
+                    select_with_prefix(self.gt, [c for c in self.carry_on_cols if c in self.gt.columns], "gt"),
                     on="gt_uid",
                     how="left",
                 )
-                candidates = candidates.join(
-                    X[[c for c in self.carry_on_cols if c in X.columns]],
-                    on="uid",
-                    how="left",
-                )
+                candidates = candidates.join(X[[c for c in self.carry_on_cols if c in X.columns]], on="uid", how="left")
 
             if self.with_no_matches:
                 # change gt_uid column to nullable integer

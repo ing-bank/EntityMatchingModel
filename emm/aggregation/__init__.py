@@ -20,9 +20,7 @@
 from emm.aggregation.pandas_entity_aggregation import PandasEntityAggregation
 from emm.helper import spark_installed
 
-__all__ = [
-    "PandasEntityAggregation",
-]
+__all__ = ["PandasEntityAggregation"]
 
 if spark_installed:
     from emm.aggregation.spark_entity_aggregation import SparkEntityAggregation

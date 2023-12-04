@@ -87,17 +87,11 @@ def test_abbr_to_words_only_legal_form():
 
 def test_abbr_match():
     assert (
-        util.abbr_match(
-            "38th International Conference on Very Large Databases, Turkey 2012",
-            "VLDB 2012 Conf TR",
-        )
+        util.abbr_match("38th International Conference on Very Large Databases, Turkey 2012", "VLDB 2012 Conf TR")
         is False
     )
     assert (
-        util.abbr_match(
-            "VLDB 2012 Conf TR",
-            "38th International Conference on Very Large Databases, Turkey 2012",
-        )
+        util.abbr_match("VLDB 2012 Conf TR", "38th International Conference on Very Large Databases, Turkey 2012")
         is True
     )
     assert util.abbr_match("PetroBras B.V.", "Petroleo Brasileiro B.V.") is True

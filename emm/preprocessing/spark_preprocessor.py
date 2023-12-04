@@ -45,11 +45,7 @@ class SparkPreprocessor(
 ):
     """Spark implementation of Name Preprocessor"""
 
-    SERIALIZE_ATTRIBUTES = (
-        "preprocess_pipeline",
-        "_input_col",
-        "_output_col",
-    )
+    SERIALIZE_ATTRIBUTES = ("preprocess_pipeline", "_input_col", "_output_col")
     SPARK_SESSION_KW = "spark_session"
 
     def __init__(

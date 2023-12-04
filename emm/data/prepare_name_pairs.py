@@ -27,7 +27,6 @@ from emm.loggers.logger import logger
 
 
 def prepare_name_pairs(candidates, **kwargs):
-    # TODO: spark native version
     logger.info("Converting candidates from Spark to Pandas")
     return prepare_name_pairs_pd(candidates.toPandas(), **kwargs)
 
@@ -111,10 +110,7 @@ def prepare_name_pairs_pd(
 
     # Get automatically list of columns that are unique for each uid, i.e. all the names-to-match properties
     cols_max_nunique = candidates_pd.groupby(uid_col).nunique().max()
-    names_to_match_cols = [
-        uid_col,
-        *cols_max_nunique[cols_max_nunique == 1].index.tolist(),
-    ]
+    names_to_match_cols = [uid_col, *cols_max_nunique[cols_max_nunique == 1].index.tolist()]
 
     # Get list of unique names-to-match
     names_to_match_before = candidates_pd[names_to_match_cols].drop_duplicates()

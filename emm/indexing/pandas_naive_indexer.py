@@ -40,10 +40,7 @@ class PandasNaiveIndexer(TransformerMixin, BaseIndexer):
         return self
 
     def transform(
-        self,
-        X: pd.DataFrame,
-        spark_session: Any | None = None,
-        multiple_indexers: bool = False,
+        self, X: pd.DataFrame, spark_session: Any | None = None, multiple_indexers: bool = False
     ) -> pd.DataFrame:
         """Create all possible name-pairs
 

@@ -20,32 +20,26 @@
 from __future__ import annotations
 
 import copy
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
-import pandas as pd
 from pyspark.ml import Transformer
 from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
-from pyspark.sql import DataFrame
 from pyspark.sql.functions import col, lit
 from pyspark.sql.pandas.functions import PandasUDFType, pandas_udf
 from pyspark.sql.types import FloatType, IntegerType, StringType, StructField
 
-from emm.aggregation.base_entity_aggregation import (
-    BaseEntityAggregation,
-    matching_max_candidate,
-)
+from emm.aggregation.base_entity_aggregation import BaseEntityAggregation, matching_max_candidate
 from emm.helper.spark_custom_reader_writer import SparkReadable, SparkWriteable
 from emm.helper.spark_utils import set_spark_job_group
 from emm.loggers.logger import logger
 
+if TYPE_CHECKING:
+    import pandas as pd
+    from pyspark.sql import DataFrame
+
 
 class SparkEntityAggregation(
-    Transformer,
-    SparkReadable,
-    SparkWriteable,
-    DefaultParamsReadable,
-    DefaultParamsWritable,
-    BaseEntityAggregation,
+    Transformer, SparkReadable, SparkWriteable, DefaultParamsReadable, DefaultParamsWritable, BaseEntityAggregation
 ):
     """Spark name-matching aggregation code"""
 
@@ -174,8 +168,7 @@ class SparkEntityAggregation(
         dataframe = self.remove_blacklisted_names(df=dataframe, preprocessed_col=self.preprocessed_col)
 
         dataframe = dataframe.groupby(group).applyInPandas(
-            matching_max_candidate_wrapper.func,
-            schema=matching_max_candidate_wrapper.returnType,
+            matching_max_candidate_wrapper.func, schema=matching_max_candidate_wrapper.returnType
         )
 
         assert self.output_col in dataframe.columns

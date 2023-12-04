@@ -18,15 +18,15 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 """Cosine Similarity Matcher"""
+
 from __future__ import annotations
 
 import contextlib
 from itertools import islice
 from sys import getsizeof
-from typing import Callable, Literal
+from typing import TYPE_CHECKING, Callable, Literal
 
 import numpy as np
-import pyspark
 from pyspark.ml import Estimator, Model, Pipeline
 from pyspark.ml.feature import CountVectorizer, NGram
 from pyspark.ml.param.shared import HasInputCol, HasOutputCol
@@ -34,14 +34,7 @@ from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
-from pyspark.sql.types import (
-    ArrayType,
-    FloatType,
-    LongType,
-    StringType,
-    StructField,
-    StructType,
-)
+from pyspark.sql.types import ArrayType, FloatType, LongType, StringType, StructField, StructType
 from sparse_dot_topn import awesome_cossim_topn
 
 from emm.helper.spark_custom_reader_writer import SparkReadable, SparkWriteable
@@ -61,16 +54,14 @@ from emm.indexing.spark_normalized_tfidf import SparkNormalizedTfidfVectorizer
 from emm.indexing.spark_word_tokenizer import SparkWordTokenizer
 from emm.loggers.logger import logger
 
+if TYPE_CHECKING:
+    import pyspark
+
 dot_product_udf = F.udf(dot_product, FloatType())
 
 
 class SparkCosSimIndexer(
-    Estimator,
-    HasInputCol,
-    HasOutputCol,
-    DefaultParamsReadable,
-    DefaultParamsWritable,
-    BaseIndexer,
+    Estimator, HasInputCol, HasOutputCol, DefaultParamsReadable, DefaultParamsWritable, BaseIndexer
 ):
     """Unfitted Cosine similarity indexer to generate candidate name-pairs of possible matches"""
 
@@ -165,15 +156,9 @@ class SparkCosSimIndexer(
 
     def _create_pipeline(self) -> Pipeline:
         if self.parameters["tokenizer"] == "words":
-            tokenizer = SparkWordTokenizer(
-                inputCol="preprocessed",
-                outputCol="tokens",
-            )
+            tokenizer = SparkWordTokenizer(inputCol="preprocessed", outputCol="tokens")
         else:
-            tokenizer = SparkCharacterTokenizer(
-                inputCol="preprocessed",
-                outputCol="tokens",
-            )
+            tokenizer = SparkCharacterTokenizer(inputCol="preprocessed", outputCol="tokens")
 
         return Pipeline(
             stages=[
@@ -216,9 +201,7 @@ class SparkCosSimIndexer(
         else:
             self.fitted_cossim = None
         return SparkCosSimIndexerModel(
-            parameters=self.parameters,
-            vectorizer=self.fitted_vectorizer,
-            cossim=self.fitted_cossim,
+            parameters=self.parameters, vectorizer=self.fitted_vectorizer, cossim=self.fitted_cossim
         )
 
 
@@ -234,11 +217,7 @@ class SparkCosSimIndexerModel(
 ):
     """Fitted Cosine similarity indexer to generate candidate name-pairs of possible matches"""
 
-    SERIALIZE_ATTRIBUTES = (
-        "parameters",
-        "vectorizer",
-        "cossim",
-    )
+    SERIALIZE_ATTRIBUTES = ("parameters", "vectorizer", "cossim")
 
     def __init__(self, parameters: dict | None = None, vectorizer=None, cossim=None) -> None:
         """Fitted Cosine similarity indexer to generate candidate name-pairs of possible matches
@@ -273,10 +252,7 @@ class SparkCosSimIndexerModel(
         if self.cossim is not None:
             res = self.cossim.transform(names_vec)
             if self.parameters.get("keep_all_cols", False):
-                return res.join(
-                    names_vec.select("uid", "tokens", "ngram_tokens", "tf", "idf", "features"),
-                    on="uid",
-                )
+                return res.join(names_vec.select("uid", "tokens", "ngram_tokens", "tf", "idf", "features"), on="uid")
             return res
         return names_vec
 
@@ -315,13 +291,7 @@ def add_blocking_col(
     return sdf
 
 
-def match_one(
-    features,
-    ground_truth_features,
-    ground_truth_indices,
-    num_candidates=10,
-    lower_bound=0.5,
-):
+def match_one(features, ground_truth_features, ground_truth_indices, num_candidates=10, lower_bound=0.5):
     matched_rows = awesome_cossim_topn(as_matrix(features, False), ground_truth_features, num_candidates, lower_bound)
     return get_candidate_list(ground_truth_indices, zip(matched_rows.indices, matched_rows.data))
 
@@ -395,14 +365,7 @@ def get_n_top_matches_for_all(
     # Iterate over all the rows of the partition
     try:
         indices, features, groups = zip(
-            *(
-                (
-                    r[uid_col],
-                    r[feature_col],
-                    None if blocking_col is None else r[blocking_col],
-                )
-                for r in iterator
-            )
+            *((r[uid_col], r[feature_col], None if blocking_col is None else r[blocking_col]) for r in iterator)
         )
     except ValueError as ve:
         logger.warning(f"Empty partition iterator, exception: {ve}")
@@ -452,12 +415,7 @@ def get_n_top_matches_for_all(
 
 
 class SparkCosSimMatcher(
-    Estimator,
-    HasInputCol,
-    HasOutputCol,
-    DefaultParamsReadable,
-    DefaultParamsWritable,
-    CosSimBaseIndexer,
+    Estimator, HasInputCol, HasOutputCol, DefaultParamsReadable, DefaultParamsWritable, CosSimBaseIndexer
 ):
     """Unfitted Cosine similarity calculator of name-pairs candidates"""
 
@@ -519,12 +477,7 @@ class SparkCosSimMatcher(
             "CosSimMatcher._fit()",
             f"num_candidates:{self.num_candidates}, cos_sim_lower_bound:{self.cos_sim_lower_bound}, blocking_func:{self.blocking_func}",
         )
-        ground_truth_df = add_blocking_col(
-            ground_truth_df,
-            self.name_col,
-            self.blocking_col,
-            self.blocking_func,
-        )
+        ground_truth_df = add_blocking_col(ground_truth_df, self.name_col, self.blocking_col, self.blocking_func)
 
         cos_sim_matcher_model = SparkCosSimMatcherModel(
             ground_truth_df,
@@ -687,9 +640,6 @@ class SparkCosSimMatcherModel(
             )
             match_name_udf = F.udf(match_name, candidate_list_schema)
             return names_df.withColumn("candidates", match_name_udf(names_df.features))
-            # TODO the streaming case wasn't tested/done during the memory optimization refactoring, therefore
-            # it is now missing some columns in candidates that might need to be added back via a join on candidate.gt_uid,
-            # see join below in the non-streaming case
 
         # We use mapPartitions(). FYI we can't use Spark Pandas UDF because the type of the feature vector column is not supported and we get error:
         #   java.lang.UnsupportedOperationException: Unsupported data type: struct<type:tinyint,size:int,indices:array<int>,values:array<double>>
@@ -719,10 +669,7 @@ class SparkCosSimMatcherModel(
         # Make output a DataFrame again
         # FYI: we could use instead self.spark.createDataFrame(matched_rdd) but then we need to yield Row() with the column names
         output_schema = StructType(
-            [
-                StructField(self.uid_col, LongType()),
-                StructField("candidates", candidate_list_schema),
-            ]
+            [StructField(self.uid_col, LongType()), StructField("candidates", candidate_list_schema)]
         )
         matched_df = matched_rdd.toDF(output_schema)
 
@@ -744,10 +691,7 @@ class SparkCosSimMatcherModel(
         logger.info("CosSimMatcherModel indexer_id: %d", self.indexer_id)
 
         gt_indices, gt_features = collect_matrix(
-            ground_truth_df,
-            self.uid_col,
-            self.getInputCol(),
-            blocking_col=self.blocking_col,
+            ground_truth_df, self.uid_col, self.getInputCol(), blocking_col=self.blocking_col
         )
 
         if self.blocking_col is None:

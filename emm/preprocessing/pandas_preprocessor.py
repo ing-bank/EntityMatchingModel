@@ -28,10 +28,7 @@ from sklearn.base import TransformerMixin
 
 from emm.loggers import Timer
 from emm.loggers.logger import logger
-from emm.preprocessing.base_name_preprocessor import (
-    AbstractPreprocessor,
-    create_func_dict,
-)
+from emm.preprocessing.base_name_preprocessor import AbstractPreprocessor, create_func_dict
 
 
 class PandasPreprocessor(TransformerMixin, AbstractPreprocessor):
@@ -108,11 +105,7 @@ class PandasPreprocessor(TransformerMixin, AbstractPreprocessor):
         return self.transform(X, **extra_params)
 
     def _spark_apply_steps(
-        self,
-        series: pd.Series,
-        preprocess_list: list[Any],
-        func_dict: Mapping[str, Any],
-        chunk_size: int = 10**4,
+        self, series: pd.Series, preprocess_list: list[Any], func_dict: Mapping[str, Any], chunk_size: int = 10**4
     ) -> pd.Series:
         # Remark: 'chunk_size' is not the same as 'partition_size'
         # because here we just do name preprocessing and that can be done with much larger partitions
@@ -136,12 +129,8 @@ class PandasPreprocessor(TransformerMixin, AbstractPreprocessor):
             timer.log_param("n", len(series))
         return res
 
-    def _local_apply_steps(
-        self,
-        series: pd.Series,
-        preprocess_list: list[Any],
-        func_dict: Mapping[str, Any],
-    ) -> pd.Series:
+    @staticmethod
+    def _local_apply_steps(series: pd.Series, preprocess_list: list[Any], func_dict: Mapping[str, Any]) -> pd.Series:
         with Timer("PandasPreprocessor._local_apply_steps") as timer:
             for preprocess_def in preprocess_list:
                 timer.label(preprocess_def)

@@ -20,12 +20,13 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import Any, Literal
-
-import pandas as pd
+from typing import TYPE_CHECKING, Any, Literal
 
 from emm.base.pipeline import Pipeline
 from emm.preprocessing.abbreviation_util import preprocess
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 def _mean_score_aggregation(df, group, score_col, output_col):

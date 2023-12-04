@@ -20,8 +20,4 @@
 from . import create_data, noiser
 from .create_data import create_training_data
 
-__all__ = [
-    "create_data",
-    "noiser",
-    "create_training_data",
-]
+__all__ = ["create_data", "noiser", "create_training_data"]

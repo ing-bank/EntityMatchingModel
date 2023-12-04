@@ -22,12 +22,15 @@ from __future__ import annotations
 import pickle
 from functools import partial
 from io import BytesIO
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import joblib
 
 from emm.helper import spark_installed
 from emm.helper.custom_path import CustomPath
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 if spark_installed:
     from pyspark.sql import SparkSession

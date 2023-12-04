@@ -85,11 +85,7 @@ class Noiser:
         if len(words) < 3:
             return name
         index = self.rng.choice(len(words) - 1)
-        return re.sub(
-            r"" + words[index] + r"\W+" + words[index + 1],
-            words[index] + words[index + 1].lower(),
-            name,
-        )
+        return re.sub(r"" + words[index] + r"\W+" + words[index + 1], words[index] + words[index + 1].lower(), name)
 
     def drop_word(self, name):
         words = self.re_word.findall(name)
@@ -137,11 +133,7 @@ class Noiser:
             return name
         word_to_split = self.rng.choice(words)
         split_point = self.rng.choice([4, 5])
-        return re.sub(
-            word_to_split,
-            word_to_split[:split_point] + " " + word_to_split[split_point:],
-            name,
-        )
+        return re.sub(word_to_split, word_to_split[:split_point] + " " + word_to_split[split_point:], name)
 
     def drop_letter(self, word):
         drop_point = self.rng.choice(len(word) - 1)

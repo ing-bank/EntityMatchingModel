@@ -19,13 +19,11 @@
 
 from __future__ import annotations
 
-from typing import Any, Callable, Literal, Mapping
+from typing import TYPE_CHECKING, Any, Callable, Literal, Mapping
 
 import numpy as np
 import pandas as pd
-from sklearn.base import TransformerMixin
 from sklearn.metrics import roc_auc_score
-from sklearn.pipeline import Pipeline
 
 from emm.aggregation.base_entity_aggregation import BaseEntityAggregation
 from emm.aggregation.pandas_entity_aggregation import PandasEntityAggregation
@@ -45,9 +43,11 @@ from emm.pipeline.base_entity_matching import BaseEntityMatching
 from emm.preprocessing.base_name_preprocessor import AbstractPreprocessor
 from emm.preprocessing.pandas_preprocessor import PandasPreprocessor
 from emm.supervised_model.base_supervised_model import BaseSupervisedModel, train_model
-from emm.supervised_model.pandas_supervised_model import (
-    PandasSupervisedLayerTransformer,
-)
+from emm.supervised_model.pandas_supervised_model import PandasSupervisedLayerTransformer
+
+if TYPE_CHECKING:
+    from sklearn.base import TransformerMixin
+    from sklearn.pipeline import Pipeline
 
 
 class PandasEntityMatching(BaseEntityMatching):
@@ -132,10 +132,7 @@ class PandasEntityMatching(BaseEntityMatching):
         preprocessor = params["preprocessor"]
         if isinstance(preprocessor, AbstractPreprocessor):
             return preprocessor
-        return PandasPreprocessor(
-            preprocess_pipeline=preprocessor,
-            spark_session=params.get("spark_session"),
-        )
+        return PandasPreprocessor(preprocess_pipeline=preprocessor, spark_session=params.get("spark_session"))
 
     def _create_indexers(self) -> list[TransformerMixin]:
         params = self.parameters
@@ -150,9 +147,7 @@ class PandasEntityMatching(BaseEntityMatching):
                 "spark_session": params.get("spark_session"),
                 "n_jobs": params.get("n_jobs", -1),
             },
-            "sni": {
-                "input_col": "preprocessed",
-            },
+            "sni": {"input_col": "preprocessed"},
             "naive": {},
         }
         if "indexers" in params:
@@ -234,11 +229,7 @@ class PandasEntityMatching(BaseEntityMatching):
 
         return SklearnPipelineWrapper(steps)
 
-    def fit(
-        self,
-        ground_truth_df: pd.DataFrame,
-        copy_ground_truth: bool = False,
-    ) -> PandasEntityMatching:
+    def fit(self, ground_truth_df: pd.DataFrame, copy_ground_truth: bool = False) -> PandasEntityMatching:
         """Fits name indexers on ground truth data.
 
         Fit excludes the supervised model, which needs training list of names that match to the ground truth.
@@ -294,10 +285,7 @@ class PandasEntityMatching(BaseEntityMatching):
             if "country" in names_df.columns:
                 columns += ["country"]
             if self.parameters["aggregation_layer"]:
-                columns += [
-                    "account",
-                    "counterparty_account_count_distinct",
-                ]
+                columns += ["account", "counterparty_account_count_distinct"]
             # keep all carry-on columns that are found
             if self.parameters.get("carry_on_cols", []):
                 extra_cols = [c for c in self.parameters["carry_on_cols"] if c not in columns and c in names_df.columns]
@@ -379,7 +367,7 @@ class PandasEntityMatching(BaseEntityMatching):
             # used & corrected during prepare_dataset_pd()
             self.increase_window_by_one_step()
         candidates = self.transform(train_positive_names_to_match)
-        # TODO remove the drop
+
         candidates = candidates.drop(columns=["name", "gt_name"]).rename(columns={"score": "score_0"})
         if create_negative_sample:
             # reset indexers back to normal settings
@@ -547,18 +535,7 @@ class PandasEntityMatching(BaseEntityMatching):
             test_gt = self.ground_truth_df
 
         def combine_sm_results(df: pd.DataFrame, sel_cand: pd.DataFrame, test_gt: pd.DataFrame) -> pd.DataFrame:
-            res = df.join(
-                sel_cand[
-                    [
-                        "gt_entity_id",
-                        "gt_name",
-                        "gt_preprocessed",
-                        "nm_score",
-                        "score_0",
-                    ]
-                ],
-                how="left",
-            )
+            res = df.join(sel_cand[["gt_entity_id", "gt_name", "gt_preprocessed", "nm_score", "score_0"]], how="left")
             res["nm_score"] = res["nm_score"].fillna(-1)
             res["score_0"] = res["score_0"].fillna(-1)
             res["positive_set"] = res["id"].isin(test_gt["id"])
