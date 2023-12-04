@@ -96,10 +96,6 @@ doc = [
   "myst_parser"
 ]
 
-[tool.black]
-line-length = 120
-target-version = ["py38"]
-
 [tool.pytest.ini_options]
 filterwarnings = [
   # DeprecationWarning: distutils Version classes are deprecated. Use packaging.version instead.
@@ -130,47 +126,44 @@ filterwarnings = [
 ]
 
 [tool.ruff]
-extend-select = ["TID"]
+extend-select = [
+    "E", # pyflakes `E`
+    "W", # pyflakes `W`
+    "I", # isort
+    "TID", # flake8-tidy-imports
+    "UP", # pyupgrade
+    "D212", # pydocstyle
+    "D411", # pydocstyle
+    "ANN001", # flake8-annotations
+    "C4",  # flake8-comprehensions
+    "EM", # flake8-errmsg
+    "FA", # flake8-future-annotations
+    "INP", # flake8-no-pep420
+    "PIE", # flake8-pie
+    "RET", # flake8-return
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
+    "PTH", # flake8-use-pathlib
+    "TD002", # flake8-todos
+    "PL", # pylint
+    "PERF", # perflint
+    "FURB", # refurb
+]
 target-version = "py38"
 line-length = 120
 select = [
   # Enable Pyflakes `E`, `F` and `W` codes
-  "E",
   "F",
-  "W",
-  # pylint
-  "PL",
-  # isort
-  "I",
-  # simplify
-  "SIM",
-  "PIE",
-  # Upgrade
-  "UP",
-  # comprehensions
-  "C4",
-  # implicit namespace
-  "INP",
-  # return
-  "RET",
   # pytest
   "PT",
   # numpy
   "NPY",
   # import conventions
   "ICN",
-  # implicit string concat
-  "ISC",
-  # implicit namespace
-  "INP",
   # prints
   "T20",
   # quotes
   "Q",
-  # returns
-  "RET",
-  # relative imports
-  "TID",
   # ruff-specific rules
   "RUF",
   # logging format
@@ -181,14 +174,10 @@ select = [
   "ANN204",
   # error messages
   "EM",
-  # future annotations
-  "FA",
   # raise
   "RSE",
   # flynt
   "FLY",
-  # perf
-  "PERF",
   "CPY001"
 ]
 ignore = [
@@ -227,6 +216,12 @@ notice-rgx = """(?mis)Copyright \\(c\\) 2023 ING Analytics Wholesale Banking.+""
 
 [tool.ruff.pydocstyle]
 convention = "google"
+
+[tool.ruff.isort]
+split-on-trailing-comma = false
+
+[tool.ruff.format]
+skip-magic-trailing-comma = true
 
 [tool.setuptools]
 include-package-data = true
