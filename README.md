@@ -1,8 +1,5 @@
 # Entity Matching model
 
-[![emm package in P11945-outgoing feed in Azure
-Artifacts](https://feeds.dev.azure.com/INGCDaaS/49255723-5232-4e9f-9501-068bf5e381a9/_apis/public/Packaging/Feeds/P11945-outgoing/Packages/8436e3e5-0029-4c5e-9a98-a9961acdd9a0/Badge)](https://dev.azure.com/INGCDaaS/IngOne/_artifacts/feed/P11945-outgoing/PyPI/emm?preferRelease=true)
-
 Entity Matching Model (EMM) solves the problem of matching company names between two possibly very
 large datasets. EMM can match millions against millions of names with a distributed approach.
 It uses the well-established candidate selection techniques in string matching,
