@@ -3,7 +3,7 @@ repos:
   rev: v0.1.6
   hooks:
     - id: ruff
-      args: [--fix, --preview]
+      args: [--fix]
       exclude: notebooks/
     - id: ruff-format
       exclude: notebooks/
