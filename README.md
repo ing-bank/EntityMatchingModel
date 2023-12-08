@@ -25,7 +25,7 @@ This step aggregates the name-matching scores from the supervised layer into a s
 The package is modular in design and and works both using both Pandas and Spark. A classifier trained with the former
 can be used with the latter and vice versa.
 
-For release history see: ``CHANGES.md``.
+For release history see [GitHub Releases](https://github.com/ing-bank/EntityMatchingModel/releases).
 
 ## Notebooks
 
