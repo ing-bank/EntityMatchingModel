@@ -38,7 +38,7 @@ For detailed examples of the code please see the notebooks under `notebooks/`.
 
 ## Documentation
 
-For documentation, design, and API see `docs/`.
+For documentation, design, and API see [the documentation](https://entitymatchingmodel.readthedocs.io/en/latest/).
 
 
 ## Check it out
