@@ -1,5 +1,12 @@
 # Entity Matching model
 
+[![Build](https://github.com/ing-bank/EntityMatchingModel/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/ing-bank/EntityMatchingModel/actions)
+[![Latest Github release](https://img.shields.io/github/v/release/ing-bank/EntityMatchingModel)](https://github.com/ing-bank/EntityMatchingModel/releases)
+[![GitHub release date](https://img.shields.io/github/release-date/ing-bank/EntityMatchingModel)](https://github.com/ing-bank/EntityMatchingModel/releases)
+[![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/charliermarsh/ruff/main/assets/badge/v1.json)](https://github.com/astral-sh/ruff)
+[![Downloads](https://static.pepy.tech/badge/emm)](https://pepy.tech/project/emm)
+
+
 Entity Matching Model (EMM) solves the problem of matching company names between two possibly very
 large datasets. EMM can match millions against millions of names with a distributed approach.
 It uses the well-established candidate selection techniques in string matching,
