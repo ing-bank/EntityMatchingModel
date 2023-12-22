@@ -34,6 +34,7 @@ def prepare_name_pairs(candidates, **kwargs):
 def prepare_name_pairs_pd(
     candidates_pd,
     drop_duplicate_candidates=False,
+    drop_samename_nomatch=False,
     create_negative_sample_fraction=0,
     entity_id_col="entity_id",
     gt_entity_id_col="gt_entity_id",
@@ -55,9 +56,11 @@ def prepare_name_pairs_pd(
 
     Args:
         candidates_pd: input positive name-pair candidates created at em_model.create_training_name_pairs().
-        drop_duplicate_candidates: if True drop any duplicate training candidates and keep just one,
+        drop_duplicate_candidates: if True, drop any duplicate training candidates and keep just one,
                         if available keep the correct match. Recommended for string-similarity models, eg. with
                         without_rank_features=True. default is False.
+        drop_samename_nomatch: if True, drop any candidates name-pairs where the two names are equal but which
+                        are not match. default is False.
         create_negative_sample_fraction: fraction of name-pairs converted to negative name-pairs. A negative name
                                             has guaranteed no match to any name in the ground truth. default is 0:
                                             no negative names are created.
@@ -107,6 +110,14 @@ def prepare_name_pairs_pd(
         candidates_pd = candidates_pd.sort_values(
             ["uid", "gt_preprocessed", "correct"], ascending=False
         ).drop_duplicates(subset=["uid", "gt_preprocessed"], keep="first")
+    # Similar, for a training set remove all equal names that are not considered a match.
+    # This can happen a lot in actual data, e.g. with franchises that are independent but have the same name.
+    # It's a true effect in data, but this screws up our intuitive notion that identical names should be related.
+    if drop_samename_nomatch:
+        samename_nomatch = (candidates_pd["preprocessed"] == candidates_pd["gt_preprocessed"]) & ~candidates_pd[
+            "correct"
+        ]
+        candidates_pd = candidates_pd[~samename_nomatch]
 
     # Get automatically list of columns that are unique for each uid, i.e. all the names-to-match properties
     cols_max_nunique = candidates_pd.groupby(uid_col).nunique().max()
