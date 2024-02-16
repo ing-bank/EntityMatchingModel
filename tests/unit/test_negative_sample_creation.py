@@ -17,7 +17,6 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -30,8 +29,6 @@ from emm.data.negative_data_creation import (
     negative_rerank_cossim,
     negative_rerank_sni,
 )
-
-DATA_DIR = Path(__file__).parent.parent / "resources" / "data"
 
 
 @pytest.fixture()
