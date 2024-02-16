@@ -87,7 +87,7 @@ def prepare_name_pairs_pd(
     candidates_pd["correct"] = candidates_pd[entity_id_col] == candidates_pd[gt_entity_id_col]
 
     # negative sample creation?
-    # if so, add positive_set column for negative sample creation
+    # if so, add positive_set_col column for negative sample creation
     rng = np.random.default_rng(random_seed)
     create_negative_sample_fraction = min(create_negative_sample_fraction, 1)
     create_negative_sample = create_negative_sample_fraction > 0
@@ -98,7 +98,9 @@ def prepare_name_pairs_pd(
         pos_ids = list(rng.choice(ids, n_positive, replace=False))
         candidates_pd[positive_set_col] = candidates_pd[entity_id_col].isin(pos_ids)
     elif create_negative_sample and positive_set_col in candidates_pd.columns:
-        logger.info("create_negative_sample_fraction is set, but positive_set already defined; using the latter.")
+        logger.info(
+            f"create_negative_sample_fraction is set, but {positive_set_col} already defined; using the latter."
+        )
 
     # We remove duplicates ground-truth name candidates in the pure string similarity model (i.e. when WITHOUT_RANK_FEATURES==True)
     # because we noticed that when we don't do this, the model learns that perfect match are worst than non-perfect match (like different legal form)

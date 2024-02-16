@@ -72,6 +72,7 @@ def get_threshold_curves_parameters(
     score_col: str = "nm_score",
     aggregation_layer: bool = False,
     aggregation_method: str = "name_clustering",
+    positive_set_col: str = "positive_set",
 ) -> dict:
     """Get threshold decision curves
 
@@ -80,12 +81,16 @@ def get_threshold_curves_parameters(
         score_col: which score column to use, default is 'nm_score'. For aggregation use 'agg_score'.
         aggregation_layer: use aggregation layer? default is False.
         aggregation_method: which aggregation method is used? 'name_clustering' or 'mean_score'.
+        positive_set_col: name of positive set column in best candidates df. default is 'positive_set'
 
     Returns:
         dictionary with threshold decision curves
     """
-    best_positive_df = best_candidate_df[best_candidate_df.positive_set]
-    best_negative_df = best_candidate_df[~best_candidate_df.positive_set]
+    if positive_set_col not in best_candidate_df.columns:
+        msg = f"positive set column {positive_set_col} not in best_candidates df."
+        raise ValueError(msg)
+    best_positive_df = best_candidate_df[best_candidate_df[positive_set_col]]
+    best_negative_df = best_candidate_df[~best_candidate_df[positive_set_col]]
     n_positive_names_to_match = len(best_positive_df)
     name_sets = {"all": best_candidate_df, "positive": best_positive_df, "negative": best_negative_df}
 
