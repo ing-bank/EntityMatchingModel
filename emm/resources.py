@@ -18,25 +18,15 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 # Resources lookup file
+import pathlib
 from pathlib import Path
 
-from pkg_resources import resource_filename
+ROOT_DIRECTORY = Path(__file__).resolve().parent.parent
 
-import emm
-
-try:
-    # data directory
-    _DATA_DIR = Path(resource_filename(emm.__name__, "data"))
-    # data files that are shipped with emm.
-    _DATA = {_.name: _ for _ in _DATA_DIR.glob("*.csv.gz")}
-    # Tutorial notebooks
-    _NOTEBOOK = {_.name: _ for _ in Path(resource_filename(emm.__name__, "notebooks")).glob("*.ipynb")}
-except NotImplementedError:
-    # resource_filename does not work in a zipped python environment on yarn
-    _DATA_DIR = ""
-    _DATA = {}
-    _NOTEBOOK = {}
-
+# data files that are shipped with emm.
+_DATA = {_.name: _ for _ in pathlib.Path(ROOT_DIRECTORY / "emm/data").glob("*.csv.gz")}
+# Tutorial notebooks
+_NOTEBOOK = {_.name: _ for _ in pathlib.Path(ROOT_DIRECTORY / "notebooks").glob("*.ipynb")}
 
 # Resource types
 _RESOURCES = {"data": _DATA, "notebook": _NOTEBOOK}
