@@ -259,6 +259,7 @@ def pandas_create_noised_data(
     name_col="Name",
     index_col="Index",
     random_seed=None,
+    positive_set_col="positive_set",
 ):
     """Create pandas noised dataset based on company names from kvk.
 
@@ -274,6 +275,7 @@ def pandas_create_noised_data(
         name_col: name column in csv file
         index_col: name-id column in csv file (optional)
         random_seed: seed to use
+        positive_set_col: name of positive set column in csv file, default is "positive_set".
 
     Returns:
         ground_truth and companies_noised_pd pandas dataframes
@@ -331,7 +333,7 @@ def pandas_create_noised_data(
     pos = shuffled_ids[: len(shuffled_ids) // 2]
     # ground truth only contains companies in positive set
     is_in_pos = companies_pd["Index"].isin(pos)
-    companies_pd["positive_set"] = is_in_pos
+    companies_pd[positive_set_col] = is_in_pos
 
     if split_pos_neg:
         ground_truth = companies_pd[is_in_pos].copy()
@@ -387,6 +389,7 @@ def create_noised_data(
     index_col="Index",
     ret_posneg=False,
     random_seed=None,
+    positive_set_col="positive_set",
 ):
     """Create spark noised dataset based on company names from kvk.
 
@@ -404,6 +407,7 @@ def create_noised_data(
         index_col: name-id column in csv file (optional)
         ret_posneg: if true also return original positive and negative spark true datasets
         random_seed: seed to use
+        positive_set_col: name of positive set column in csv file, default is "positive_set".
 
     Returns:
         ground_truth and companies_noised_pd spark dataframes
@@ -412,8 +416,17 @@ def create_noised_data(
         # location of local sample of kvk unit test dataset; downloads the dataset in case not present.
         data_path, _ = retrieve_kvk_test_sample()
 
+    # name_col and index_col get renamed to Name and Index
     (ground_truth_pd, companies_noised_pd, positive_noised_pd, negative_pd) = pandas_create_noised_data(
-        noise_level, noise_type, noise_count, split_pos_neg, data_path, name_col, index_col, random_seed
+        noise_level,
+        noise_type,
+        noise_count,
+        split_pos_neg,
+        data_path,
+        name_col,
+        index_col,
+        random_seed,
+        positive_set_col,
     )
 
     # Sparkify dataframes
@@ -424,7 +437,7 @@ def create_noised_data(
             StructField("amount", FloatType(), True),
             StructField("counterparty_account_count_distinct", IntegerType(), nullable=True),
             StructField("uid", IntegerType(), nullable=True),
-            StructField("positive_set", BooleanType(), True),
+            StructField(positive_set_col, BooleanType(), True),
             StructField("country", StringType(), nullable=True),
             StructField("account", StringType(), True),
         ]

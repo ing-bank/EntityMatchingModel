@@ -538,10 +538,8 @@ class PandasEntityMatching(BaseEntityMatching):
             res = df.join(sel_cand[["gt_entity_id", "gt_name", "gt_preprocessed", "nm_score", "score_0"]], how="left")
             res["nm_score"] = res["nm_score"].fillna(-1)
             res["score_0"] = res["score_0"].fillna(-1)
-            res["positive_set"] = res["id"].isin(test_gt["id"])
-            res["correct"] = ((res["positive_set"]) & (res["id"] == res["gt_entity_id"])) | (
-                (~res["positive_set"]) & (res["id"].isnull())
-            )
+            is_in_pos = res["id"].isin(test_gt["id"])
+            res["correct"] = ((is_in_pos) & (res["id"] == res["gt_entity_id"])) | ((~is_in_pos) & (res["id"].isnull()))
             return res
 
         test_candidates = self.transform(test_names_to_match.copy())

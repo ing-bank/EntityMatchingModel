@@ -256,7 +256,7 @@ def train_test_model(
 
     y = dataset["correct"].astype(str) + dataset["no_candidate"].astype(str)
     if positive_set_col in dataset.columns:
-        y += dataset["positive_set"].astype(str)
+        y += dataset[positive_set_col].astype(str)
 
     # Train test split with consistent name-to-match account (group) and with approximately same class balance y (stratified)
     # it is important to have all the name in the same account, for account matching after aggregation

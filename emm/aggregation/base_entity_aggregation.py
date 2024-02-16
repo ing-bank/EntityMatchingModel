@@ -143,6 +143,7 @@ class BaseEntityAggregation(Pipeline):
         gt_preprocessed_col: str = "gt_preprocessed",
         aggregation_method: Literal["max_frequency_nm_score", "mean_score"] = "max_frequency_nm_score",
         blacklist: list | None = None,
+        positive_set_col: str = "positive_set",
     ) -> None:
         self.score_col = score_col
         self.account_col = account_col
@@ -158,6 +159,7 @@ class BaseEntityAggregation(Pipeline):
         self.gt_preprocessed_col = gt_preprocessed_col
         self.aggregation_method = aggregation_method
         self.blacklist = blacklist or []
+        self.positive_set_col = positive_set_col
 
         # perform very basic preprocessing to blacklist, remove abbreviations, to lower, etc.
         self.blacklist = [preprocess(name) for name in self.blacklist]
@@ -171,8 +173,8 @@ class BaseEntityAggregation(Pipeline):
             group += [self.index_col]
 
         # Useful for collect_metrics()
-        if "positive_set" in dataframe.columns:
-            group += ["positive_set"]
+        if self.positive_set_col in dataframe.columns:
+            group += [self.positive_set_col]
 
         # Notice we lose the name_to_match 'uid' column here
         return group
