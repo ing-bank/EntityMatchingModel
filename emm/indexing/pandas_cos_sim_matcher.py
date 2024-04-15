@@ -28,7 +28,7 @@ import pandas as pd
 import scipy
 import scipy.sparse
 from sklearn.base import TransformerMixin
-from sparse_dot_topn import awesome_cossim_topn
+from sparse_dot_topn import sp_matmul_topn
 
 from emm.helper.util import groupby
 from emm.indexing.base_indexer import CosSimBaseIndexer
@@ -235,13 +235,13 @@ class PandasCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
         # np.array_split cannot be used here due to sparse array X_enc
         X_chunks = [X_enc[i : i + self.partition_size] for i in range(0, X_enc.shape[0], self.partition_size)]
         for X_chunk in X_chunks:
-            cossim = awesome_cossim_topn(
+            cossim = sp_matmul_topn(
                 X_chunk,
                 gt_enc_t,
-                self.num_candidates,
-                self.cos_sim_lower_bound,
-                n_jobs=self.n_jobs,
-                use_threads=self.n_jobs > 1,
+                top_n=self.num_candidates,
+                threshold=self.cos_sim_lower_bound,
+                n_threads=self.n_jobs,
+                sort=True,
             )
             cs_list.append(cossim)
         return scipy.sparse.vstack(cs_list, dtype=self.dtype)
@@ -262,9 +262,7 @@ class PandasCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
         def calc(
             row: scipy.sparse.csr_matrix, num_candidates: scipy.sparse.csr_matrix, cos_sim_lower_bound: float
         ) -> scipy.sparse.csr_matrix:
-            left = row
-            right = spark_gt.value
-            return awesome_cossim_topn(left, right, num_candidates, cos_sim_lower_bound)
+            return sp_matmul_topn(row, spark_gt.value, num_candidates, threshold=cos_sim_lower_bound)
 
         cs_rdd = rdd.map(
             partial(calc, num_candidates=self.num_candidates, cos_sim_lower_bound=self.cos_sim_lower_bound)
