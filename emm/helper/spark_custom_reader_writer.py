@@ -214,6 +214,30 @@ class SparkCustomWriter(MLWriter):
         }
         return json.dumps(metadata, separators=[",", ":"])
 
+    def format(self, file_format: str):
+        """Set the file format of ground truth datasets that are saved
+
+        Args:
+            file_format: storage format of spark dataframes, default is parquet.
+
+        Returns:
+            self
+        """
+        self.file_format = file_format
+        return self
+
+    def options(self, **kwargs):
+        """Set the other file storage options of ground truth datasets that are saved
+
+        Args:
+            kwargs: storage kw-args, passed on to: sdf.write.save(path, format=self.file_format, **self.kwargs)
+
+        Returns:
+            self
+        """
+        self.store_kws = kwargs
+        return self
+
 
 class SparkCustomReader(MLReader):
     """Spark Custom class reader"""
