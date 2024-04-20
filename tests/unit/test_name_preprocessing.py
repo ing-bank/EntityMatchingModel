@@ -56,13 +56,13 @@ THIS_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe(
         (
             "preprocess_name",
             ["Tzu-Sun_BV.a;b,c_ä", "Tzu-Sun_BV  morethan1space"],
-            ["tzu sun bv a b c a", "tzu sun bv  morethan1space"],
+            ["tzu sun bv a b c a", "tzu sun bv morethan1space"],
         ),
         ("preprocess_with_punctuation", ["Tzu-Sun_BV.a;b,c_ä"], ["tzu - sun _ bv . a ; b , c _ a"]),
         (
             "preprocess_merge_abbr",
             ["Tzu-Sun_B.V.a;b,c_ä", "Z. S. B. V.", "Z Sun B V", "Z. Sun B.V.", "Z Sun B.V"],
-            ["tzu sun b v a b c a", "zsbv", "z sun bv", "z  sun bv", "z sun bv"],
+            ["tzu sun b v a b c a", "zsbv", "z sun bv", "z sun bv", "z sun bv"],
         ),
         (
             "preprocess_merge_legal_abbr",
@@ -193,9 +193,9 @@ def test_preprocessor_pandas_unusual_chars():
     out = pandas_preprocessor.transform(df)["preprocessed"].tolist()
     expect = [
         "b n consult b v",
-        "stichting vrienden van laurens  pax intrantibus",
-        "nicren  n v",
-        "scheepvaartbedrijf absurdia  inc",
+        "stichting vrienden van laurens pax intrantibus",
+        "nicren n v",
+        "scheepvaartbedrijf absurdia inc",
         "aeoa aeoa inc",
         "ss ss german co",
     ]

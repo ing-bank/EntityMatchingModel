@@ -36,6 +36,7 @@ DEFINED_PIPELINE_DICT = {
         "remove_newline",
         "strip_punctuation",  # normal way: remove punctuation, handle unicode, lower and trim
         "handle_lower_trim",
+        "remove_extra_space",
     ],
     "preprocess_with_punctuation": [
         "strip_accents_unicode",
@@ -43,6 +44,7 @@ DEFINED_PIPELINE_DICT = {
         "remove_newline",
         "insert_space_around_punctuation",  # punctuation will be kept. Must be work with
         "handle_lower_trim",
+        "remove_extra_space",
     ],
     "preprocess_merge_abbr": [
         "strip_accents_unicode",
@@ -53,6 +55,7 @@ DEFINED_PIPELINE_DICT = {
         "strip_punctuation",
         "handle_lower_trim",
         "map_shorthands",
+        "remove_extra_space",
     ],
     "preprocess_merge_legal_abbr": [
         "strip_accents_unicode",
