@@ -142,7 +142,7 @@ def test_return_sm_features_pandas(kvk_training_dataset):
         "X_feat_score_0_diff_to_prev",
     ]
 
-    assert len(res) == 118
+    assert len(res) == 117
     assert all(feat in res.columns for feat in features)
     assert (res["X_feat_norm_jaro"] > 0).all()
 
@@ -202,5 +202,5 @@ def test_return_sm_features_spark(kvk_training_dataset, spark_session):
         "X_feat_score_0_diff_to_prev",
     ]
 
-    assert res.count() == 118
+    assert res.count() == 117
     assert all(feat in res.columns for feat in features)

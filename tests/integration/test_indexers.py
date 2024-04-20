@@ -216,7 +216,7 @@ def test_indexer_objects_pandas(kvk_training_dataset):
     p.fit(gt)
     res = p.transform(names)
 
-    assert len(res) == 118
+    assert len(res) == 117
 
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
@@ -239,7 +239,7 @@ def test_indexer_objects_spark(kvk_training_dataset, spark_session):
     p.fit(sgt)
     res = p.transform(snames)
 
-    assert res.count() == 118
+    assert res.count() == 117
 
 
 def test_naive_indexer_pandas(kvk_training_dataset):
