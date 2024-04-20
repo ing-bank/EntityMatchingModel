@@ -162,9 +162,10 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
         if effective_n_jobs(n_jobs) == 1:
             return self.transform(X=X)
 
+        chunk_size = int(np.ceil(len(X) / effective_n_jobs(n_jobs)))
+        X_chunks = [X.iloc[i : i + chunk_size] for i in range(0, len(X), chunk_size)]
+
         transform_splits = Parallel(n_jobs=n_jobs, backend="threading")(
-            delayed(self.transform)(X_split)
-            for X_split in np.array_split(X, effective_n_jobs(n_jobs))
-            if len(X_split) > 0
+            delayed(self.transform)(X_split) for X_split in X_chunks if len(X_split) > 0
         )
         return sp.vstack(transform_splits)
