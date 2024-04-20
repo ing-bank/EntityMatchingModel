@@ -45,6 +45,7 @@ class PandasEntityAggregation(TransformerMixin, BaseEntityAggregation):
         preprocessed_col: str = "preprocessed",
         gt_name_col: str = "gt_name",
         gt_preprocessed_col: str = "gt_preprocessed",
+        correct_col: str = "correct",
         aggregation_method: Literal["max_frequency_nm_score", "mean_score"] = "max_frequency_nm_score",
         blacklist: list[str] | None = None,
     ) -> None:
@@ -80,6 +81,7 @@ class PandasEntityAggregation(TransformerMixin, BaseEntityAggregation):
             preprocessed_col: Name of column of preprocessed input
             gt_name_col: ground truth name column, default is "gt_name".
             gt_preprocessed_col: column name of preprocessed ground truth names, default is "preprocessed".
+            correct_col: column indicating correct matches, if present. default is "correct". optional.
             aggregation_method: default is "max_frequency_nm_score", alternative is "mean_score".
             blacklist: blacklist of names to skip in clustering.
         """
@@ -97,6 +99,7 @@ class PandasEntityAggregation(TransformerMixin, BaseEntityAggregation):
             preprocessed_col=preprocessed_col,
             gt_name_col=gt_name_col,
             gt_preprocessed_col=gt_preprocessed_col,
+            correct_col=correct_col,
             aggregation_method=aggregation_method,
             blacklist=blacklist or [],
         )

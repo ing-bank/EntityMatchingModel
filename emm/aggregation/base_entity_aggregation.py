@@ -141,6 +141,7 @@ class BaseEntityAggregation(Pipeline):
         preprocessed_col: str = "preprocessed",
         gt_name_col: str = "gt_name",
         gt_preprocessed_col: str = "gt_preprocessed",
+        correct_col: str = "correct",
         aggregation_method: Literal["max_frequency_nm_score", "mean_score"] = "max_frequency_nm_score",
         blacklist: list | None = None,
         positive_set_col: str = "positive_set",
@@ -157,6 +158,7 @@ class BaseEntityAggregation(Pipeline):
         self.preprocessed_col = preprocessed_col
         self.gt_name_col = gt_name_col
         self.gt_preprocessed_col = gt_preprocessed_col
+        self.correct_col = correct_col
         self.aggregation_method = aggregation_method
         self.blacklist = blacklist or []
         self.positive_set_col = positive_set_col
