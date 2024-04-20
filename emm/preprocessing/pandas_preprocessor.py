@@ -22,7 +22,6 @@ from __future__ import annotations
 from functools import partial
 from typing import Any, Callable, Mapping
 
-import numpy as np
 import pandas as pd
 from sklearn.base import TransformerMixin
 
@@ -109,10 +108,11 @@ class PandasPreprocessor(TransformerMixin, AbstractPreprocessor):
     ) -> pd.Series:
         # Remark: 'chunk_size' is not the same as 'partition_size'
         # because here we just do name preprocessing and that can be done with much larger partitions
-        # than 'partition_size' that is designed to handle the fact that cosine similarity creates 10 times more data after the candidate generation
+        # than 'partition_size' that is designed to handle the fact that cosine similarity creates 10 times more data
+        # after the candidate generation
 
         with Timer("PandasPreprocessor._spark_apply_steps") as timer:
-            X_chunks = np.array_split(series, (len(series) + chunk_size - 1) // chunk_size)
+            X_chunks = [series.iloc[i : i + chunk_size] for i in range(0, len(series), chunk_size)]
             sc = self.spark_session.sparkContext
             rdd = sc.parallelize(X_chunks, len(X_chunks))
 
