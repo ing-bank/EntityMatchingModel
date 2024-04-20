@@ -48,7 +48,7 @@ def test_increase_window_pandas(kvk_training_dataset):
 
     p.increase_window_by_one_step()
     res = p.transform(names)
-    assert len(res) == 327
+    assert len(res) == 324
     assert res["rank_0"].max() == 11
     assert res["rank_1"].max() == 3
     assert res["rank_1"].min() == -3
@@ -73,7 +73,7 @@ def test_decrease_window_pandas(kvk_training_dataset):
 
     p.decrease_window_by_one_step()
     res = p.transform(names)
-    assert len(res) == 227
+    assert len(res) == 226
     assert res["rank_0"].max() == 9
     assert res["rank_1"].max() == 1
     assert res["rank_1"].min() == -1
@@ -102,7 +102,7 @@ def test_increase_window_spark(kvk_training_dataset, spark_session):
 
     p.increase_window_by_one_step()
     res = p.transform(snames)
-    assert res.count() == 327
+    assert res.count() == 324
 
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
@@ -128,7 +128,7 @@ def test_decrease_window_spark(kvk_training_dataset, spark_session):
 
     p.decrease_window_by_one_step()
     res = p.transform(snames)
-    assert res.count() == 227
+    assert res.count() == 226
 
 
 def test_create_name_pairs_pandas(kvk_training_dataset):
@@ -151,13 +151,13 @@ def test_create_name_pairs_pandas(kvk_training_dataset):
     train = p.create_training_name_pairs(names, create_negative_sample_fraction=0.5, random_seed=42)
 
     assert isinstance(train, pd.DataFrame)
-    assert len(train) == 277
+    assert len(train) == 274
     assert "correct" in train.columns
     assert "no_candidate" in train.columns
     assert "positive_set" in train.columns
     vc = train["positive_set"].value_counts().to_dict()
-    assert vc[False] == 152
-    assert vc[True] == 125
+    assert vc[False] == 148
+    assert vc[True] == 126
 
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
@@ -184,13 +184,13 @@ def test_create_name_pairs_spark(kvk_training_dataset, spark_session):
     train = p.create_training_name_pairs(snames, create_negative_sample_fraction=0.5, random_seed=42)
 
     assert isinstance(train, pd.DataFrame)
-    assert len(train) == 277
+    assert len(train) == 274
     assert "correct" in train.columns
     assert "no_candidate" in train.columns
     assert "positive_set" in train.columns
     vc = train["positive_set"].value_counts().to_dict()
-    assert vc[False] == 152
-    assert vc[True] == 125
+    assert vc[False] == 148
+    assert vc[True] == 126
 
 
 def test_fit_classifier_pandas(kvk_training_dataset):
