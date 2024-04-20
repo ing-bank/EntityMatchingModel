@@ -26,7 +26,7 @@ from pyspark.ml import Transformer
 from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
 from pyspark.sql.functions import col, lit
 from pyspark.sql.pandas.functions import PandasUDFType, pandas_udf
-from pyspark.sql.types import FloatType, IntegerType, StringType, StructField
+from pyspark.sql.types import BooleanType, FloatType, IntegerType, StringType, StructField
 
 from emm.aggregation.base_entity_aggregation import BaseEntityAggregation, matching_max_candidate
 from emm.helper.spark_custom_reader_writer import SparkReadable, SparkWriteable
@@ -49,7 +49,10 @@ class SparkEntityAggregation(
         "uid_col",
         "freq_col",
         "output_col",
-        "processed_col",
+        "preprocessed_col",
+        "gt_name_col",
+        "gt_preprocessed_col",
+        "correct_col",
         "aggregation_method",
         "blacklist",
     )
@@ -66,6 +69,7 @@ class SparkEntityAggregation(
         preprocessed_col: str = "preprocessed",
         gt_name_col: str = "gt_name",
         gt_preprocessed_col: str = "gt_preprocessed",
+        correct_col: str = "correct",
         aggregation_method: Literal["max_frequency_nm_score", "mean_score"] = "max_frequency_nm_score",
         blacklist: list | None = None,
     ) -> None:
@@ -98,6 +102,7 @@ class SparkEntityAggregation(
             preprocessed_col: Name of column of preprocessed input, default is "preprocessed".
             gt_name_col: ground truth name column, default is "gt_name".
             gt_preprocessed_col: column name of preprocessed ground truth names. default is "gt_preprocessed".
+            correct_col: column indicating correct matches, pass-thru if present. default is "correct". optional.
             aggregation_method: default is "max_frequency_nm_score", alternative is "mean_score".
             blacklist: blacklist of names to skip in clustering.
         """
@@ -115,6 +120,7 @@ class SparkEntityAggregation(
             preprocessed_col=preprocessed_col,
             gt_name_col=gt_name_col,
             gt_preprocessed_col=gt_preprocessed_col,
+            correct_col=correct_col,
             blacklist=blacklist or [],
         )
 
@@ -145,6 +151,9 @@ class SparkEntityAggregation(
         schema.add(StructField(self.freq_col, IntegerType(), True))
         schema.add(StructField(self.gt_name_col, StringType(), True))
         schema.add(StructField(self.gt_preprocessed_col, StringType(), True))
+        # pass through the correct-match column if present on training or test sets; useful for accuracy testing
+        if self.correct_col in dataframe.columns:
+            schema.add(StructField(self.correct_col, BooleanType(), True))
 
         @pandas_udf(schema, PandasUDFType.GROUPED_MAP)
         def matching_max_candidate_wrapper(_, df) -> pd.DataFrame:
@@ -158,7 +167,6 @@ class SparkEntityAggregation(
                 output_col=self.output_col,
                 aggregation_method=self.aggregation_method,
             )
-
             return df[[c.name for c in schema]]
 
         # remove all irrelevant non-matches before applying account matching
