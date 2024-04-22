@@ -37,6 +37,7 @@ from pyspark.sql import types as T
 from pyspark.sql.types import ArrayType, FloatType, LongType, StringType, StructField, StructType
 from sparse_dot_topn import awesome_cossim_topn
 
+from emm.helper.blocking_functions import _parse_blocking_func
 from emm.helper.spark_custom_reader_writer import SparkReadable, SparkWriteable
 from emm.helper.spark_utils import set_spark_job_group
 from emm.indexing.base_indexer import BaseIndexer, CosSimBaseIndexer
@@ -74,7 +75,7 @@ class SparkCosSimIndexer(
         num_candidates: int = 2,
         cos_sim_lower_bound: float = 0.5,
         max_features: int = 2**25,
-        blocking_func: Callable[[str], str] | None = None,
+        blocking_func: Callable[[str], str] | str | None = None,
         streaming: bool = False,
         indexer_id: int | None = None,
         keep_all_cols: bool = False,
@@ -146,7 +147,7 @@ class SparkCosSimIndexer(
                 num_candidates=parameters.get("num_candidates", 10),
                 cos_sim_lower_bound=parameters["cos_sim_lower_bound"],
                 streaming=parameters["streaming"],
-                blocking_func=parameters["blocking_func"],
+                blocking_func=_parse_blocking_func(parameters["blocking_func"]),
                 indexer_id=parameters["indexer_id"],
                 n_threads=parameters.get("n_threads", 1),
             )
