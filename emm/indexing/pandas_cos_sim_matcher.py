@@ -30,6 +30,7 @@ import scipy.sparse
 from sklearn.base import TransformerMixin
 from sparse_dot_topn import sp_matmul_topn
 
+from emm.helper.blocking_functions import _parse_blocking_func
 from emm.helper.util import groupby
 from emm.indexing.base_indexer import CosSimBaseIndexer
 from emm.indexing.pandas_normalized_tfidf import PandasNormalizedTfidfVectorizer
@@ -52,7 +53,7 @@ class PandasCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
         max_features: int | None = None,
         n_jobs: int = 1,
         spark_session: Any | None = None,
-        blocking_func: Callable[[str], str] | None = None,
+        blocking_func: Callable[[str], str] | str | None = None,
         dtype: type[float] = np.float32,
         indexer_id: int | None = None,
     ) -> None:
@@ -99,7 +100,7 @@ class PandasCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
         self.dtype = dtype
         self.cos_sim_lower_bound = cos_sim_lower_bound
         self.partition_size = partition_size
-        self.blocking_func = blocking_func
+        self.blocking_func = _parse_blocking_func(blocking_func)
         self.n_jobs = n_jobs if n_jobs != -1 else multiprocessing.cpu_count()
         self.spark_session = spark_session
         # attributes below are set during fit

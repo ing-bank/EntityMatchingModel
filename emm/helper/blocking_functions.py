@@ -23,6 +23,10 @@ Their names are used to name indexers.
 Please don't modify the function names.
 """
 
+from __future__ import annotations
+
+from typing import Callable
+
 
 def first(x: str) -> str:
     """First character blocking function."""
@@ -37,3 +41,27 @@ def first2(x: str) -> str:
 def first3(x: str) -> str:
     """First two characters blocking function."""
     return x.strip().lower()[:3]
+
+
+BLOCKING_MAP = {"first": first, "first2": first2, "first3": first3}
+
+
+def _parse_blocking_func(input: Callable[[str], str] | str | None = None) -> Callable[[str], str] | None:
+    """Helper function to get blocking function
+
+    Args:
+        input: blocking function or name of existing blocking function
+
+    Returns:
+        blocking function or None
+    """
+    if input is None or callable(input):
+        return input
+    if isinstance(input, str):
+        if input not in BLOCKING_MAP:
+            msg = f"Input {input} is not a recognized blocking function."
+            raise ValueError(msg)
+        return BLOCKING_MAP[input]
+
+    msg = "Input is not None, no string and not callable."
+    raise TypeError(msg)
