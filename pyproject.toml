@@ -18,7 +18,7 @@ dependencies = [
   # Fix for error ValueError: numpy.ndarray size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject.
   "numpy>=1.20.1",
   "scipy",
-  "scikit-learn>=1.0.0",
+  "scikit-learn<1.5.0",
   "pandas>=1.1.0,!=1.5.0",
   "jinja2", # for pandas https://pandas.pydata.org/docs/getting_started/install.html#visualization
   "rapidfuzz<3.0.0",
