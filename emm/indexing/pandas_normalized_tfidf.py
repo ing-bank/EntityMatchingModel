@@ -76,12 +76,24 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
             super().fit(X)
 
             timer.label("normalize")
-            idf_diag = self._tfidf._idf_diag
+            n_features = self.idf_.shape[0]
+
+            # 1. this max_idf_square value is used in normalization step for simulating out-of-vocabulary tokens
+            idf_diag = scipy.sparse.diags(
+                self.idf_, offsets=0, shape=(n_features, n_features), format="csr", dtype=self.dtype
+            )
             idf_diag = idf_diag - scipy.sparse.diags(np.ones(idf_diag.shape[0]), shape=idf_diag.shape, dtype=self.dtype)
-            self._tfidf._idf_diag = idf_diag
-            assert self._tfidf._idf_diag.dtype == self.dtype
-            # this value is used in normalization step for simulating out-of-vocabulary tokens
             self.max_idf_square = idf_diag.max() ** 2
+
+            # 2. ensure compatibility between sklearn and spark tfidf vectors
+            if hasattr(self._tfidf, "_idf_diag"):
+                # sklearn < 1.5
+                self._tfidf._idf_diag = idf_diag
+                assert self._tfidf._idf_diag.dtype == self.dtype
+            else:
+                # sklearn >= 1.5
+                self.idf_ = self.idf_ - np.ones(n_features, dtype=self.dtype)
+                assert self.idf_.dtype == self.dtype
 
             timer.log_params({"n": len(X), "n_features": idf_diag.shape[0]})
 
