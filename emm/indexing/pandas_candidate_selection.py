@@ -212,6 +212,7 @@ class PandasCandidateSelectionTransformer(TransformerMixin):
             if self.with_no_matches:
                 # change gt_uid column to nullable integer
                 candidates["gt_uid"] = candidates["gt_uid"].replace({NO_MATCH_ID: np.nan}).astype("Int64")
+                candidates["gt_entity_id"] = candidates["gt_entity_id"].replace({NO_MATCH_ID: np.nan}).astype("Int64")
 
             timer.log_param("n", len(X))
 
