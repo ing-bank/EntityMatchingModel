@@ -46,6 +46,16 @@ DEFINED_PIPELINE_DICT = {
         "handle_lower_trim",
         "remove_extra_space",
     ],
+    "preprocess_merge_abbr_v0": [  # preprocess_merge_abbr v0, w/o remove_extra_space, for bkw-compatibility
+        "strip_accents_unicode",
+        "replace_punctuation",
+        "remove_newline",
+        "merge_abbreviations",  # merge all abbreviation
+        "merge_&",
+        "strip_punctuation",
+        "handle_lower_trim",
+        "map_shorthands",
+    ],
     "preprocess_merge_abbr": [
         "strip_accents_unicode",
         "replace_punctuation",
