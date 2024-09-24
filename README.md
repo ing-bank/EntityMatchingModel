@@ -39,7 +39,7 @@ For detailed examples of the code please see the notebooks under `notebooks/`.
 ## Documentation
 
 For documentation, design, and API see [the documentation](https://entitymatchingmodel.readthedocs.io/en/latest/).
-
+Or read our Medium blog [Entity Matching at Scale!](https://medium.com/p/af20429a80c7)
 
 ## Check it out
 
