@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, ci-test-macos ]
   pull_request:
 
 jobs:
