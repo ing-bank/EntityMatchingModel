@@ -31,7 +31,7 @@ dependencies = [
   "xgboost==2.0.3; sys_platform=='darwin'", # to avoid having to install libomp.dylib for later versions of xgboost
   "sparse-dot-topn>=1.1.1",
   "joblib",
-  "pyarrow",
+  "pyarrow>=6.0.1", # seems to work with spark 3.1.2 - 3.3.1
   "requests",
   "unidecode"
 ]
@@ -43,7 +43,7 @@ spark = [
   # https://issues.apache.org/jira/browse/SPARK-41718
   # 3.4 is needed for python 3.11
   # https://github.com/apache/spark/pull/38987
-  "pyspark>=3.3.4; python_version < '3.11'",
+  "pyspark>=3.1; python_version < '3.11'",
   "numpy<1.24.0",
 ]
 dev = [
