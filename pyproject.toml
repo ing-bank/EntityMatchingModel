@@ -28,6 +28,7 @@ dependencies = [
   "cleanco>=2.2",
   # It is important to fix the version of xgboost for reproducible classification scores
   "xgboost",
+  "xgboost==2.0.3; sys_platform=='darwin'", # to avoid having to install libomp.dylib for later versions of xgboost
   "sparse-dot-topn>=1.1.1",
   "joblib",
   "pyarrow>=6.0.1", # seems to work with spark 3.1.2 - 3.3.1
