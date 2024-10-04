@@ -52,8 +52,9 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
             kwargs: kew-word arguments are same as TfidfVectorizer.
         """
         kwargs.update({"norm": None, "smooth_idf": True, "lowercase": True})
-        if "dtype" not in kwargs:
-            kwargs.update({"dtype": np.float32})
+        print("Printing from inside PandasNormalizedTfidfVectorizer: kwargs are", kwargs)
+        # if "dtype" not in kwargs:
+        #     kwargs.update({"dtype": np.float32})
         if kwargs.get("analyzer") in {"word", None}:
             kwargs["token_pattern"] = r"\w+"
         super().__init__(**kwargs)
@@ -93,6 +94,7 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
             else:
                 # sklearn >= 1.5
                 print("X is", X.size)
+                print("X dtype is", X.dtype)
                 print("X nulls", X.isna().any())
                 print("self.dtype is", self.dtype)
                 print("n_features is", n_features)
