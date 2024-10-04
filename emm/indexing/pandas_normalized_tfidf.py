@@ -37,6 +37,8 @@ from emm.loggers import Timer
 class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
     """Implementation of customized TFIDF vectorizer"""
 
+    dtype = np.float32
+
     def __init__(self, **kwargs: Any) -> None:
         """Implementation of customized TFIDF vectorizer
 
@@ -51,7 +53,7 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
         Args:
             kwargs: kew-word arguments are same as TfidfVectorizer.
         """
-        kwargs.update({"norm": None, "smooth_idf": True, "lowercase": True, "dtype": np.float32})
+        kwargs.update({"norm": None, "smooth_idf": True, "lowercase": True})
         if kwargs.get("analyzer") in {"word", None}:
             kwargs["token_pattern"] = r"\w+"
         super().__init__(**kwargs)
@@ -90,6 +92,12 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
                 assert self._tfidf._idf_diag.dtype == self.dtype
             else:
                 # sklearn >= 1.5
+                print("X is", X.size)
+                print("X nulls", X.isna().any())
+                print("self.dtype is", self.dtype)
+                print("n_features is", n_features)
+                print("np.ones dtype is", np.ones(n_features, dtype=self.dtype).dtype)
+                print("self.idf_ dtype is", self.idf_.dtype)
                 self.idf_ = self.idf_ - np.ones(n_features, dtype=self.dtype)
                 assert self.idf_.dtype == self.dtype
 
