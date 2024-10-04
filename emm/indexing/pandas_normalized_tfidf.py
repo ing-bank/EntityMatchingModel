@@ -37,8 +37,6 @@ from emm.loggers import Timer
 class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
     """Implementation of customized TFIDF vectorizer"""
 
-    dtype = np.float32
-
     def __init__(self, **kwargs: Any) -> None:
         """Implementation of customized TFIDF vectorizer
 
@@ -54,6 +52,8 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
             kwargs: kew-word arguments are same as TfidfVectorizer.
         """
         kwargs.update({"norm": None, "smooth_idf": True, "lowercase": True})
+        if "dtype" not in kwargs:
+            kwargs.update({"dtype": np.float32})
         if kwargs.get("analyzer") in {"word", None}:
             kwargs["token_pattern"] = r"\w+"
         super().__init__(**kwargs)
