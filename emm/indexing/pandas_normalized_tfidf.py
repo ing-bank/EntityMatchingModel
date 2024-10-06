@@ -51,6 +51,7 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
         Args:
             kwargs: kew-word arguments are same as TfidfVectorizer.
         """
+        kwargs.setdefault("dtype", np.float32)
         kwargs.update({"norm": None, "smooth_idf": True, "lowercase": True})
         if kwargs.get("analyzer") in {"word", None}:
             kwargs["token_pattern"] = r"\w+"
