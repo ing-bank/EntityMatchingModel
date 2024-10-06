@@ -137,7 +137,7 @@ def test_pandas_tfidf(dtype):
 
 
 @pytest.mark.parametrize(
-    ("dtype", "data_size"), [(np.float32, 100), (np.float64, True), (np.float32, 1000000), (np.float64, 1000000)]
+    ("dtype", "data_size"), [(np.float32, 100), (np.float64, 100), (np.float32, 1000000), (np.float64, 1000000)]
 )
 def test_pandas_tfidf_dtype(dtype, data_size):
     pandas_t = PandasNormalizedTfidfVectorizer(dtype=dtype)
