@@ -52,9 +52,6 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
             kwargs: kew-word arguments are same as TfidfVectorizer.
         """
         kwargs.update({"norm": None, "smooth_idf": True, "lowercase": True})
-        print("Printing from inside PandasNormalizedTfidfVectorizer: kwargs are", kwargs)
-        # if "dtype" not in kwargs:
-        #     kwargs.update({"dtype": np.float32})
         if kwargs.get("analyzer") in {"word", None}:
             kwargs["token_pattern"] = r"\w+"
         super().__init__(**kwargs)
@@ -75,6 +72,8 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
         with Timer("CustomizedTfidfVectorizer.fit") as timer:
             timer.label("super fit")
             super().fit(X)
+            # scikit-learn's TidfVectorizer does not preserve dtype for large X, so we force it here
+            self.idf_ = self.idf_.astype(self.dtype)
 
             timer.label("normalize")
             n_features = self.idf_.shape[0]
@@ -93,13 +92,6 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
                 assert self._tfidf._idf_diag.dtype == self.dtype
             else:
                 # sklearn >= 1.5
-                print("X is", X.size)
-                print("X dtype is", X.dtype)
-                print("X nulls", X.isna().any())
-                print("self.dtype is", self.dtype)
-                print("n_features is", n_features)
-                print("np.ones dtype is", np.ones(n_features, dtype=self.dtype).dtype)
-                print("self.idf_ dtype is", self.idf_.dtype)
                 self.idf_ = self.idf_ - np.ones(n_features, dtype=self.dtype)
                 assert self.idf_.dtype == self.dtype
 
