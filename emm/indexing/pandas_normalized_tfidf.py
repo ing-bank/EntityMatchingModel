@@ -72,7 +72,7 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
         with Timer("CustomizedTfidfVectorizer.fit") as timer:
             timer.label("super fit")
             super().fit(X)
-            # scikit-learn's TidfVectorizer does not preserve dtype for large X, so we force it here
+            # scikit-learn's TfidfVectorizer does not preserve dtype for large X, so we force it here
             self.idf_ = self.idf_.astype(self.dtype)
 
             timer.label("normalize")
