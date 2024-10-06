@@ -104,7 +104,6 @@ class PandasCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
         self.n_jobs = n_jobs if n_jobs != -1 else multiprocessing.cpu_count()
         self.spark_session = spark_session
         # attributes below are set during fit
-        print("Printing from inside PandasCosSomIndexer: dtype is", dtype)
         self.tfidf = PandasNormalizedTfidfVectorizer(
             analyzer={"words": "word", "characters": "char"}[tokenizer],
             binary=binary_countvectorizer,
