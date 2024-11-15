@@ -365,6 +365,7 @@ class SparkEntityMatching(
             drop_duplicate_candidates: if True drop any duplicate training candidates and keep just one,
                             if available keep the correct match. Recommended for string-similarity models, eg. with
                             without_rank_features=True. default is False.
+            kwargs: extra key-word arguments meant to be passed to prepare_name_pairs_pd.                
 
         Returns:
             pandas dataframe with name-pair candidates to be used for training.
