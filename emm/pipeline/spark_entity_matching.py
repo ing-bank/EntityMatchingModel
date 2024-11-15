@@ -24,6 +24,10 @@ from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import pandas as pd
+from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
+from pyspark.sql import DataFrame, SparkSession
+from pyspark.sql import functions as F
+
 from emm.aggregation.base_entity_aggregation import BaseEntityAggregation
 from emm.aggregation.spark_entity_aggregation import SparkEntityAggregation
 from emm.data.prepare_name_pairs import prepare_name_pairs
@@ -42,13 +46,9 @@ from emm.preprocessing.base_name_preprocessor import AbstractPreprocessor
 from emm.preprocessing.spark_preprocessor import SparkPreprocessor
 from emm.supervised_model.base_supervised_model import train_model
 from emm.supervised_model.spark_supervised_model import SparkSupervisedLayerEstimator
-from pyspark.ml.util import DefaultParamsReadable, DefaultParamsWritable
-from pyspark.sql import DataFrame, SparkSession
-from pyspark.sql import functions as F
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
-
     from pyspark.ml import Pipeline, PipelineModel
 
 
@@ -270,9 +270,7 @@ class SparkEntityMatching(
         # We repartition in order to have at least 200, to have a nice parallel computation
         # (assuming memory is not an issue here) and nice parallelism for joins in transform() later on.
         # We usually have less than 200 partitions in case the ground_truth is not that long.
-        ground_truth_df, self.n_ground_truth = auto_repartitioning(
-            ground_truth_df, self.parameters["partition_size"]
-        )
+        ground_truth_df, self.n_ground_truth = auto_repartitioning(ground_truth_df, self.parameters["partition_size"])
         ground_truth_df = check_uid(ground_truth_df, self.parameters["uid_col"])
         ground_truth_df = self._normalize_column_names(ground_truth_df)
         self.model = self.pipeline.fit(ground_truth_df)
@@ -329,9 +327,7 @@ class SparkEntityMatching(
             cols_to_keep = names_df.columns
             cols_to_drop = [c for c in matched_df.columns if c not in cols_to_keep]
             cols_to_drop = [
-                c
-                for c in cols_to_drop
-                if not re.match(pattern, c) and not c.endswith("_score") and c != "preprocessed"
+                c for c in cols_to_drop if not re.match(pattern, c) and not c.endswith("_score") and c != "preprocessed"
             ]
             matched_df = matched_df.drop(*cols_to_drop)
             logger.debug(f"Dropping columns: {cols_to_drop}")
@@ -499,9 +495,7 @@ class SparkEntityMatching(
         # keep both stages for re-adding later (also in case of do_training=False).
         if self.parameters.get("supervised_on", False):
             self.model.stages.pop(2)
-        aggregation_model = (
-            self.model.stages.pop() if self.parameters.get("aggregation_layer", False) else None
-        )
+        aggregation_model = self.model.stages.pop() if self.parameters.get("aggregation_layer", False) else None
         # remove any existing untrained model 'X', no longer needed.
         if isinstance(self.supervised_models, dict):
             self.supervised_models.pop("X", None)
@@ -590,9 +584,7 @@ class SparkEntityMatching(
         # reinsert again below with new sklearn model included.
         if self.parameters.get("supervised_on", False):
             self.model.stages.pop(2)
-        aggregation_model = (
-            self.model.stages.pop() if self.parameters.get("aggregation_layer", False) else None
-        )
+        aggregation_model = self.model.stages.pop() if self.parameters.get("aggregation_layer", False) else None
 
         # add new supervised model to self.supervised_models
         # self.supervised_models contains all trained and untrained sklearn models
