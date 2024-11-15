@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [ main, update_create_training_name_pairs]
+    branches: [ main ]
   pull_request:
 
 jobs:
