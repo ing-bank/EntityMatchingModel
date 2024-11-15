@@ -312,6 +312,7 @@ class PandasEntityMatching(BaseEntityMatching):
         n_train_ids: int = -1,
         random_seed: int = 42,
         drop_duplicate_candidates: bool | None = None,
+        **kwargs,
     ) -> pd.DataFrame:
         """Create name-pairs for training from positive names that match to the ground truth.
 
@@ -333,6 +334,7 @@ class PandasEntityMatching(BaseEntityMatching):
             drop_duplicate_candidates: if True drop any duplicate training candidates and keep just one,
                             if available keep the correct match. Recommended for string-similarity models, eg. with
                             without_rank_features=True. default is False.
+            kwargs: extra key-word arguments meant to be passed to prepare_name_pairs_pd.
 
         Returns:
             pandas dataframe with name-pair candidates to be used for training.
@@ -383,6 +385,7 @@ class PandasEntityMatching(BaseEntityMatching):
             create_negative_sample_fraction=create_negative_sample_fraction,
             positive_set_col=self.parameters.get("positive_set_col", "positive_set"),
             random_seed=random_seed,
+            **kwargs,
         )
 
     def fit_classifier(
