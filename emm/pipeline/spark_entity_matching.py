@@ -343,6 +343,7 @@ class SparkEntityMatching(
         n_train_ids=-1,
         random_seed=42,
         drop_duplicate_candidates: bool | None = None,
+        **kwargs,
     ) -> pd.DataFrame:
         """Create name-pairs for training from positive names that match to the ground truth.
 
@@ -409,6 +410,7 @@ class SparkEntityMatching(
             create_negative_sample_fraction=create_negative_sample_fraction,
             positive_set_col=self.parameters.get("positive_set_col", "positive_set"),
             random_seed=random_seed,
+            **kwargs,
         )
 
     def fit_classifier(
