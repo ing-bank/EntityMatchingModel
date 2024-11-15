@@ -20,7 +20,6 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Callable, Mapping
 from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
@@ -48,6 +47,8 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
+
     from pyspark.ml import Pipeline, PipelineModel
 
 
