@@ -47,8 +47,9 @@ from emm.preprocessing.spark_preprocessor import SparkPreprocessor
 from emm.supervised_model.base_supervised_model import train_model
 from emm.supervised_model.spark_supervised_model import SparkSupervisedLayerEstimator
 
-if TYPE_CHECKING: 
+if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
+
     from pyspark.ml import Pipeline, PipelineModel
 
 
