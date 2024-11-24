@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import logging
 import os
+import uuid
 
 import numpy as np
 import pandas as pd
@@ -133,6 +134,25 @@ def test_pandas_tfidf(dtype):
         assert res.dtype == dtype
         actual_value = res.toarray()[0]
         np.testing.assert_allclose(actual_value, exp_value, rtol=0, atol=0.001)
+
+
+def test_pandas_tfidf_default_dtype():
+    pandas_t = PandasNormalizedTfidfVectorizer()
+    unique_names = [str(uuid.uuid4()) for i in range(100)]
+    gt_names = pd.Series(unique_names)
+    pandas_t.fit(gt_names)
+    assert pandas_t.idf_.dtype == np.float32
+
+
+@pytest.mark.parametrize(
+    ("dtype", "data_size"), [(np.float32, 100), (np.float64, 100), (np.float32, 1000000), (np.float64, 1000000)]
+)
+def test_pandas_tfidf_dtype_for_different_input_sizes(dtype, data_size):
+    pandas_t = PandasNormalizedTfidfVectorizer(dtype=dtype)
+    unique_names = [str(uuid.uuid4()) for i in range(data_size)]
+    gt_names = pd.Series(unique_names)
+    pandas_t.fit(gt_names)
+    assert pandas_t.idf_.dtype == dtype
 
 
 def test_pandas_tfidf_ngram():

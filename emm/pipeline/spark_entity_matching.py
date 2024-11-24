@@ -20,7 +20,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Callable, Literal, Mapping
+from typing import TYPE_CHECKING, Any, Literal
 
 import numpy as np
 import pandas as pd
@@ -48,6 +48,8 @@ from emm.supervised_model.base_supervised_model import train_model
 from emm.supervised_model.spark_supervised_model import SparkSupervisedLayerEstimator
 
 if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping
+
     from pyspark.ml import Pipeline, PipelineModel
 
 
@@ -343,6 +345,7 @@ class SparkEntityMatching(
         n_train_ids=-1,
         random_seed=42,
         drop_duplicate_candidates: bool | None = None,
+        **kwargs,
     ) -> pd.DataFrame:
         """Create name-pairs for training from positive names that match to the ground truth.
 
@@ -364,6 +367,7 @@ class SparkEntityMatching(
             drop_duplicate_candidates: if True drop any duplicate training candidates and keep just one,
                             if available keep the correct match. Recommended for string-similarity models, eg. with
                             without_rank_features=True. default is False.
+            kwargs: extra key-word arguments meant to be passed to prepare_name_pairs_pd.
 
         Returns:
             pandas dataframe with name-pair candidates to be used for training.
@@ -409,6 +413,7 @@ class SparkEntityMatching(
             create_negative_sample_fraction=create_negative_sample_fraction,
             positive_set_col=self.parameters.get("positive_set_col", "positive_set"),
             random_seed=random_seed,
+            **kwargs,
         )
 
     def fit_classifier(

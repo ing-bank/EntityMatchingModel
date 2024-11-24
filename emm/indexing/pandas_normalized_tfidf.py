@@ -37,8 +37,6 @@ from emm.loggers import Timer
 class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
     """Implementation of customized TFIDF vectorizer"""
 
-    dtype = np.float32
-
     def __init__(self, **kwargs: Any) -> None:
         """Implementation of customized TFIDF vectorizer
 
@@ -53,6 +51,7 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
         Args:
             kwargs: kew-word arguments are same as TfidfVectorizer.
         """
+        kwargs.setdefault("dtype", np.float32)
         kwargs.update({"norm": None, "smooth_idf": True, "lowercase": True})
         if kwargs.get("analyzer") in {"word", None}:
             kwargs["token_pattern"] = r"\w+"
@@ -74,6 +73,8 @@ class PandasNormalizedTfidfVectorizer(TfidfVectorizer):
         with Timer("CustomizedTfidfVectorizer.fit") as timer:
             timer.label("super fit")
             super().fit(X)
+            # scikit-learn's TfidfVectorizer does not preserve dtype for large X, so we force it here
+            self.idf_ = self.idf_.astype(self.dtype)
 
             timer.label("normalize")
             n_features = self.idf_.shape[0]
