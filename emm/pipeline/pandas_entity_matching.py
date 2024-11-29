@@ -385,6 +385,7 @@ class PandasEntityMatching(BaseEntityMatching):
             create_negative_sample_fraction=create_negative_sample_fraction,
             positive_set_col=self.parameters.get("positive_set_col", "positive_set"),
             correct_col=self.parameters.get("correct_col", "correct"),
+            uid_col=self.parameters.get("uid_col", "uid"),
             random_seed=random_seed,
             **kwargs,
         )

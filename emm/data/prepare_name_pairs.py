@@ -111,8 +111,8 @@ def prepare_name_pairs_pd(
     # - happens with one correct/positive case, we just pick the correct one
     if drop_duplicate_candidates:
         candidates_pd = candidates_pd.sort_values(
-            ["uid", "gt_preprocessed", correct_col], ascending=False
-        ).drop_duplicates(subset=["uid", "gt_preprocessed"], keep="first")
+            [uid_col, "gt_preprocessed", correct_col], ascending=False
+        ).drop_duplicates(subset=[uid_col, "gt_preprocessed"], keep="first")
     # Similar, for a training set remove all equal names that are not considered a match.
     # This can happen a lot in actual data, e.g. with franchises that are independent but have the same name.
     # It's a true effect in data, but this screws up our intuitive notion that identical names should be related.
@@ -134,7 +134,7 @@ def prepare_name_pairs_pd(
         # is referred to in: resources/data/howto_create_unittest_sample_namepairs.txt
         # create negative sample and rerank negative candidates
         # this drops, in part, the negative correct candidates
-        candidates_pd = create_positive_negative_samples(candidates_pd, correct_col=correct_col)
+        candidates_pd = create_positive_negative_samples(candidates_pd, correct_col=correct_col, uid_col=uid_col)
 
     # It could be that we dropped all candidates, so we need to re-introduce the no-candidate rows
     names_to_match_after = candidates_pd[names_to_match_cols].drop_duplicates()
