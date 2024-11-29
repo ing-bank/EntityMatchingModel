@@ -71,6 +71,8 @@ def prepare_name_pairs_pd(
                         For matching name-pairs entity_id == gt_entity_id.
         positive_set_col: column that specifies which candidates remain positive and which become negative,
                         default is "positive_set".
+        correct_col: column that indicates a correct match, default is "correct".
+                        For entity_id == gt_entity_id the column value is "correct".
         uid_col: uid column for names to match, default is "uid".
         random_seed: random seed for selection of negative names, default is 42.
     """
