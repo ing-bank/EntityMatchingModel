@@ -386,6 +386,9 @@ class PandasEntityMatching(BaseEntityMatching):
             positive_set_col=self.parameters.get("positive_set_col", "positive_set"),
             correct_col=self.parameters.get("correct_col", "correct"),
             uid_col=self.parameters.get("uid_col", "uid"),
+            gt_uid_col=self.parameters.get("gt_uid_col", "gt_uid"),
+            preprocessed_col=self.parameters.get("preprocessed_col", "preprocessed"),
+            gt_preprocessed_col=self.parameters.get("gt_preprocessed_col", "gt_preprocessed"),
             random_seed=random_seed,
             **kwargs,
         )

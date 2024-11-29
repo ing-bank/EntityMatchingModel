@@ -41,6 +41,9 @@ def prepare_name_pairs_pd(
     positive_set_col="positive_set",
     correct_col="correct",
     uid_col="uid",
+    gt_uid_col="gt_uid",
+    preprocessed_col="preprocessed",
+    gt_preprocessed_col="gt_preprocessed",
     random_seed=42,
 ):
     """Prepare dataset of name-pair candidates for training of supervised model.
@@ -74,6 +77,9 @@ def prepare_name_pairs_pd(
         correct_col: column that indicates a correct match, default is "correct".
                         For entity_id == gt_entity_id the column value is "correct".
         uid_col: uid column for names to match, default is "uid".
+        gt_uid_col: uid column of ground-truth names, default is "gt_uid".
+        preprocessed_col: name of the preprocessed names column, default is "preprocessed".
+        gt_preprocessed_col: name of the preprocessed ground-truth names column, default is "gt_preprocessed".
         random_seed: random seed for selection of negative names, default is 42.
     """
     """We can have the following dataset.columns, or much more like 'count', 'counterparty_account_count_distinct', 'type1_sum':
@@ -113,13 +119,13 @@ def prepare_name_pairs_pd(
     # - happens with one correct/positive case, we just pick the correct one
     if drop_duplicate_candidates:
         candidates_pd = candidates_pd.sort_values(
-            [uid_col, "gt_preprocessed", correct_col], ascending=False
-        ).drop_duplicates(subset=[uid_col, "gt_preprocessed"], keep="first")
+            [uid_col, gt_preprocessed_col, correct_col], ascending=False
+        ).drop_duplicates(subset=[uid_col, gt_preprocessed_col], keep="first")
     # Similar, for a training set remove all equal names that are not considered a match.
     # This can happen a lot in actual data, e.g. with franchises that are independent but have the same name.
     # It's a true effect in data, but this screws up our intuitive notion that identical names should be related.
     if drop_samename_nomatch:
-        samename_nomatch = (candidates_pd["preprocessed"] == candidates_pd["gt_preprocessed"]) & ~candidates_pd[
+        samename_nomatch = (candidates_pd[preprocessed_col] == candidates_pd[gt_preprocessed_col]) & ~candidates_pd[
             correct_col
         ]
         candidates_pd = candidates_pd[~samename_nomatch]
@@ -136,7 +142,7 @@ def prepare_name_pairs_pd(
         # is referred to in: resources/data/howto_create_unittest_sample_namepairs.txt
         # create negative sample and rerank negative candidates
         # this drops, in part, the negative correct candidates
-        candidates_pd = create_positive_negative_samples(candidates_pd, correct_col=correct_col, uid_col=uid_col)
+        candidates_pd = create_positive_negative_samples(candidates_pd, uid_col=uid_col, correct_col=correct_col)
 
     # It could be that we dropped all candidates, so we need to re-introduce the no-candidate rows
     names_to_match_after = candidates_pd[names_to_match_cols].drop_duplicates()
@@ -150,7 +156,7 @@ def prepare_name_pairs_pd(
     names_to_match_missing["score_0_rank"] = 1
 
     candidates_pd = pd.concat([candidates_pd, names_to_match_missing], ignore_index=True)
-    candidates_pd["gt_preprocessed"] = candidates_pd["gt_preprocessed"].fillna("")
-    candidates_pd["no_candidate"] = candidates_pd["gt_uid"].isnull()
+    candidates_pd[gt_preprocessed_col] = candidates_pd[gt_preprocessed_col].fillna("")
+    candidates_pd["no_candidate"] = candidates_pd[gt_uid_col].isnull()
 
     return candidates_pd
