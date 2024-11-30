@@ -2,7 +2,7 @@ name: Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, refactor_prepare_name_pairs ]
   pull_request:
 
 jobs:
