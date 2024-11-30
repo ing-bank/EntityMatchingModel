@@ -142,7 +142,9 @@ def prepare_name_pairs_pd(
         # is referred to in: resources/data/howto_create_unittest_sample_namepairs.txt
         # create negative sample and rerank negative candidates
         # this drops, in part, the negative correct candidates
-        candidates_pd = create_positive_negative_samples(candidates_pd, uid_col=uid_col, correct_col=correct_col)
+        candidates_pd = create_positive_negative_samples(
+            candidates_pd, uid_col=uid_col, correct_col=correct_col, positive_set_col=positive_set_col
+        )
 
     # It could be that we dropped all candidates, so we need to re-introduce the no-candidate rows
     names_to_match_after = candidates_pd[names_to_match_cols].drop_duplicates()
