@@ -40,7 +40,11 @@ dynamic = ["version"]
 spark = [
   # In NumPy 1.24.0, np.bool has been removed.
   # https://issues.apache.org/jira/browse/SPARK-41718
-  "pyspark>=3.1; python_version <= '3.11'",
+  "pyspark>=3.1",
+  # setuptools is only necessary because Python 3.12 removed the distutils
+  # package. pyspark 3.5.X still imports this package, so we need it on
+  # Python 3.12 to run the tests.
+  "setuptools",
 ]
 dev = [
   "pre-commit",
