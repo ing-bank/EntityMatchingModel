@@ -511,5 +511,5 @@ def create_training_data() -> tuple[pd.DataFrame, Vocabulary]:
         lambda r: None if r["no_candidate"] else r["gt_uid"], axis=1
     )  # By convention, gt_uid is null in the no_candidate case
 
-    vocabulary = Vocabulary(very_common_words={"bv", "nv"}, common_words={"bank", "holding"})
+    vocabulary = Vocabulary(very_common_words={"bv", "nv", "ltd", "plc", "limited", "co", "llp"}, common_words={"bank", "holding", "holdings"})
     return df, vocabulary
