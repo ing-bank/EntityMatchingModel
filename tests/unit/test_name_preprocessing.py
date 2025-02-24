@@ -52,7 +52,7 @@ THIS_DIR = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe(
             ["Tzu-Sun_BV.a;b,c_ä", "ąćęłńóśźżĄĆĘŁŃÓŚŹŻ", "Café"],
             ["Tzu-Sun_BV.a;b,c_a", "acelnoszzACELNOSZZ", "Cafe"],
         ),
-        ("merge_&", ["xyz & abc C&D"], ["xyz & abc CD"]),
+        ("merge_&", ["xyz & abc C&D", "foobar S/A"], ["xyz & abc CD", "foobar SA"]),
         (
             "preprocess_name",
             ["Tzu-Sun_BV.a;b,c_ä", "Tzu-Sun_BV  morethan1space"],
