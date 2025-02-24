@@ -74,9 +74,9 @@ def create_func_dict(use_spark: bool = True) -> dict[str, Callable[[Any], Any] |
         "remove_extra_space": F.regex_replace(r"""\s+""", " ", simple=True),
         # Map all the shorthands to the same format (stichting => stg)
         "map_shorthands": map_shorthands,
-        # Merge & separated abbreviations by removing & and the spaces between them
+        # Merge & or / separated abbreviations by removing & or / and the spaces between them
         "merge_&": F.regex_replace(
-            r"(\s|^)(\w)\s*&\s*(\w)(\s|$)", r"$1$2$3$4" if use_spark else r"\1\2\3\4", simple=True
+            r"(\s|^)(\w)\s*[&/]\s*(\w)(\s|$)", r"$1$2$3$4" if use_spark else r"\1\2\3\4", simple=True
         ),
         # remove legal form
         "remove_legal_form": F.run_custom_function(
