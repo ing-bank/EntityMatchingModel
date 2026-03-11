@@ -116,8 +116,8 @@ class PandasPreprocessor(TransformerMixin, AbstractPreprocessor):
             sc = self.spark_session.sparkContext
             rdd = sc.parallelize(X_chunks, len(X_chunks))
 
-            def calc(chunk, funcs):
-                for func in funcs:
+            def calc(chunk, functions):
+                for func in functions:
                     chunk = func(chunk)
                 return chunk.index.values, chunk.values
 
