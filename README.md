@@ -10,7 +10,7 @@
 Entity Matching Model (EMM) solves the problem of matching company names between two possibly very
 large datasets. EMM can match millions against millions of names with a distributed approach.
 It uses the well-established candidate selection techniques in string matching,
-namely: tfidf vectorization combined with cosine similarity (with significant optimization),
+namely: tfidf vectorization combined with cosine similarity (with significant optimization, in part thanks to [sparse_dot_topn](https://github.com/ing-bank/sparse_dot_topn)),
 both word-based and character-based, and sorted neighbourhood indexing.
 These so-called indexers act complementary for selecting realistic name-pair candidates.
 On top of the indexers, EMM has a classifier with optimized string-based, rank-based, and legal-entity
@@ -141,4 +141,4 @@ Please note that INGA-WB provides support only on a best-effort basis.
 
 ## License
 
-Copyright ING WBAA 2023. Entity Matching Model is completely free, open-source and licensed under the [MIT license](https://en.wikipedia.org/wiki/MIT_License).
+Copyright ING WBAA 2026. Entity Matching Model is completely free, open-source and licensed under the [MIT license](https://en.wikipedia.org/wiki/MIT_License).
