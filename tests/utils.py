@@ -22,7 +22,12 @@ def _to_numeric_safe(col):
 
 def read_markdown(input_str):
     # Read a markdown file
-    df = pd.read_csv(StringIO(input_str), sep=r"\s*[|]+\s*", engine="python").dropna(axis=1, how="all").iloc[1:].reset_index(drop=True)
+    df = (
+        pd.read_csv(StringIO(input_str), sep=r"\s*[|]+\s*", engine="python")
+        .dropna(axis=1, how="all")
+        .iloc[1:]
+        .reset_index(drop=True)
+    )
     return df.apply(_to_numeric_safe)
 
 
