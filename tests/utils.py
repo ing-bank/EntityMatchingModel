@@ -13,22 +13,17 @@ if spark_installed:
 logger = logging.getLogger(__name__)
 
 
+def _to_numeric_safe(col):
+    try:
+        return pd.to_numeric(col, errors="raise")
+    except (ValueError, TypeError):
+        return col
+
+
 def read_markdown(input_str):
-    return (
-        pd
-        # Read a markdown file
-        # Remark: we don't use parameter 'skiprows=[1]' because it allows us to have, if we want, formatting blank lines in 'intput_str'
-        # because 'skip_blank_lines' happens after 'skiprows', instead we use 'iloc' + 'reset_index' see below.
-        .read_csv(StringIO(input_str), sep=r"\s*[|]+\s*", engine="python")  # skipinitialspace=True not necessary
-        # Drop the left-most and right-most null columns
-        .dropna(axis=1, how="all")
-        # Drop the header underline row
-        .iloc[1:]
-        # Reset index since we dropped the first row
-        .reset_index(drop=True)
-        # Infer types
-        .apply(pd.to_numeric, errors="ignore")
-    )
+    # Read a markdown file
+    df = pd.read_csv(StringIO(input_str), sep=r"\s*[|]+\s*", engine="python").dropna(axis=1, how="all").iloc[1:].reset_index(drop=True)
+    return df.apply(_to_numeric_safe)
 
 
 def add_features_vector_col(em_vec, df, index_col=None, name_col=None):

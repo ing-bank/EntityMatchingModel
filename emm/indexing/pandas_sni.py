@@ -111,7 +111,7 @@ class PandasSortedNeighbourhoodIndexer(TransformerMixin, SNBaseIndexer):
             assert self.gt is not None
             gt_rank = self.gt.loc[candidates.gt_uid][self.input_col].map(self.mapping).values
             X_rank = names.loc[candidates.uid][self.input_col].map(self.mapping).values
-            candidates["rank"] = (gt_rank - X_rank).astype(int)
+            candidates["rank"] = (gt_rank.astype(int) - X_rank.astype(int))
             assert all(candidates["rank"].abs() <= self.window_length // 2)
             candidates["score"] = self._score_formula(candidates["rank"].abs(), self.window_length)
             assert all(candidates["score"] > 0)
