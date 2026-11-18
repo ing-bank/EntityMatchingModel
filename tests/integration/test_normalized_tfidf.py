@@ -30,7 +30,7 @@ if spark_installed:
 def check_transformation(row, expected_tokens, expected_vector_norm_range, expected_vector_len):
     norm = sum(np.power(row.features.values, 2))
     assert expected_vector_norm_range[0] <= norm <= expected_vector_norm_range[1]
-    assert row.ngram_tokens == expected_tokens
+    assert np.array_equal(row.ngram_tokens, expected_tokens)
     assert row.features.indices.size == expected_vector_len
 
 

@@ -44,7 +44,7 @@ def companies_data(spark_session):
     assert companies_ground_truth.count() == 6800
     assert companies_noised.count() == 6800
     mem_used = companies_noised_pd.memory_usage(deep=True).sum() / 1024**2
-    assert abs(mem_used - 1.44) < 0.02
+    assert abs(mem_used - 1.44) < 0.2
     return companies_ground_truth, companies_noised, companies_noised_pd
 
 

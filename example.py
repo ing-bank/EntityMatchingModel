@@ -58,6 +58,7 @@ def example():
     # initialize the entity matcher
     p = PandasEntityMatching(em_params)
     # prepare the indexers based on the ground truth names: e.g. fit the tfidf matrix of the first indexer.
+    print("Fitting EMM to ground truth names")
     p.fit(ground_truth)
 
     # pandas dataframe with name-pair candidates, made by the indexers. all names have been preprocessed.
@@ -69,10 +70,12 @@ def example():
     # and an id column 'Index' to check with candidate name-pairs are matching and which not.
     # A fraction of these names may be turned into negative names (no match to the ground truth).
     # (internally candidate name-pairs are automatically generated, which are input for the classification)
+    print("Fitting EMM supervised model to select best name-pairs")
     p.fit_classifier(train_positive_names_to_match=train_names, create_negative_sample_fraction=0.5)
 
     # generated name-pair candidates, now with classifier-based probability of match.
     # Input is the names' column 'Name'. In the output candidates df, see extra column 'nm_score'.
+    print("Matching test names to ground truth")
     candidates_scored_pd = p.transform(test_names)
     candidates_scored_pd.head()
 
@@ -215,3 +218,7 @@ def example_spark(spark):
     """
     # return dataframe for unit-testing
     return best_candidates.toPandas()
+
+
+if __name__ == "__main__":
+    example()

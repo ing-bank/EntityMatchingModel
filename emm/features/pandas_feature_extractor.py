@@ -193,7 +193,7 @@ class PandasFeatureExtractor(TransformerMixin, BaseFeatureExtractor):
 
             # handy for forward/backward compatibility; extra features can be removed here.
             if isinstance(self.drop_features, list) and len(self.drop_features) > 0:
-                res = res.drop(columns=self.drop_features, axis=1)
+                res = res.drop(columns=self.drop_features)
 
             # Reset the index
             return res.reindex(org_index)
