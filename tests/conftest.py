@@ -40,6 +40,23 @@ def pytest_configure(config):
         config.option.benchmark_skip = True
 
 
+@pytest.fixture
+def sample_sm_input():
+    return pd.DataFrame(
+        {
+            "uid": [1, 2],
+            "gt_uid": [10, 11],
+            "entity_id": [1000, 1001],
+            "gt_entity_id": [2000, 2001],
+            "name": ["Abc!", "iNg BV"],
+            "gt_name": ["Xyz   Abc", "ING limited"],
+            "preprocessed": ["abc", "ing bv"],
+            "gt_preprocessed": ["xyz abc", "ing ltd"],
+            "score_0": [0.8, 0.99],
+        }
+    )
+
+
 @pytest.fixture(scope="session")
 def supervised_model(tmp_path_factory):
     tmp_path = tmp_path_factory.mktemp("models")

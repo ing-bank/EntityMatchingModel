@@ -106,45 +106,45 @@ def test_extra_features():
     pd.testing.assert_series_equal(res2["v"], pd.Series([101, 60, 20]), check_names=False)
 
 
-@pytest.mark.parametrize(
-    ("func_name", "name1", "name2", "expected_value"),
-    [
-        # warning! this is case-sensitive
-        ("abbr_match", "Abcd", "Axyz", False),
-        ("abbr_match", "ABC xyz", "Aaa Bbb Ccc", True),
-        # if name is all lower case, approximate version is used
-        ("abbr_match", "abc xyz", "aaa bbb ccc", True),
-        ("abbr_match", "abc xyz", "aaa bbb xyz", False),
-        ("abs_len_diff", "abc", "xyz", 0),
-        ("abs_len_diff", "abc", "abcabc", 3),
-        ("len_ratio", "abc", "xyz", 1.0),
-        ("len_ratio", "abc", "xyzxyz", 0.5),
-        ("len_ratio", "abcabcabc", "xyz", 1 / 3),
-        ("name_cut", "abc", "xyz", False),
-        ("name_cut", "abcabc", "abcxyz", False),
-        ("name_cut", "abcxyz", "abc", True),
-        ("name_cut", "abc", "abcxyz", True),
-        # rapidfuzz.distance.Levenshtein.distance (regular edit distance)
-        ("norm_ed", "abc", "abc", 0),
-        ("norm_ed", "abc", "xyz", 3),
-        ("norm_ed", "abc", "axbc", 1),
-        ("norm_ed", "aybc", "axbc", 1),
-        # rapidfuzz.distance.Jaro.similarity
-        ("norm_jaro", "abc", "abc", 1),
-        ("norm_jaro", "abc", "xyz", 0),
-        ("norm_jaro", "abc", "axbc", 0.91666666),
-        # fuzzywuzzy features
-        ("w_ratio", "abc", "abc", 100),
-        ("w_ratio", "abc", "xyz", 0),
-        ("w_ratio", "abc", "axbc", 85),  # 86 with fuzzywuzzy
-        ("ratio", "abc", "abc", 100),
-        ("ratio", "abc", "xyz", 0),
-        ("ratio", "abc", "axbc", 85),  # 86 with fuzzywuzzy
-        ("token_sort_ratio", "abc bcd abc", "bcd abc abc", 100),
-        ("token_set_ratio", "abc bcd abc", "abc abc xyz", 60),
-        ("partial_ratio", "abc bcd abc", "abc abc xyz", 77),  # 64 with fuzzywuzzy
-    ],
-)
+NAME_FEATURE_CASES = [
+    # warning! this is case-sensitive
+    ("abbr_match", "Abcd", "Axyz", False),
+    ("abbr_match", "ABC xyz", "Aaa Bbb Ccc", True),
+    # if name is all lower case, approximate version is used
+    ("abbr_match", "abc xyz", "aaa bbb ccc", True),
+    ("abbr_match", "abc xyz", "aaa bbb xyz", False),
+    ("abs_len_diff", "abc", "xyz", 0),
+    ("abs_len_diff", "abc", "abcabc", 3),
+    ("len_ratio", "abc", "xyz", 1.0),
+    ("len_ratio", "abc", "xyzxyz", 0.5),
+    ("len_ratio", "abcabcabc", "xyz", 1 / 3),
+    ("name_cut", "abc", "xyz", False),
+    ("name_cut", "abcabc", "abcxyz", False),
+    ("name_cut", "abcxyz", "abc", True),
+    ("name_cut", "abc", "abcxyz", True),
+    # rapidfuzz.distance.Levenshtein.distance (regular edit distance)
+    ("norm_ed", "abc", "abc", 0),
+    ("norm_ed", "abc", "xyz", 3),
+    ("norm_ed", "abc", "axbc", 1),
+    ("norm_ed", "aybc", "axbc", 1),
+    # rapidfuzz.distance.Jaro.similarity
+    ("norm_jaro", "abc", "abc", 1),
+    ("norm_jaro", "abc", "xyz", 0),
+    ("norm_jaro", "abc", "axbc", 0.91666666),
+    # fuzzywuzzy features
+    ("w_ratio", "abc", "abc", 100),
+    ("w_ratio", "abc", "xyz", 0),
+    ("w_ratio", "abc", "axbc", 85),  # 86 with fuzzywuzzy
+    ("ratio", "abc", "abc", 100),
+    ("ratio", "abc", "xyz", 0),
+    ("ratio", "abc", "axbc", 85),  # 86 with fuzzywuzzy
+    ("token_sort_ratio", "abc bcd abc", "bcd abc abc", 100),
+    ("token_set_ratio", "abc bcd abc", "abc abc xyz", 60),
+    ("partial_ratio", "abc bcd abc", "abc abc xyz", 77),  # 64 with fuzzywuzzy
+]
+
+
+@pytest.mark.parametrize(("func_name", "name1", "name2", "expected_value"), NAME_FEATURE_CASES)
 def test_name_features_functions(func_name, name1, name2, expected_value):
     fe = PandasFeatureExtractor()
     func, dtype = fe.name_features[func_name]

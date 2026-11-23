@@ -22,8 +22,7 @@ Optionally, the EMM package can also be used to match a group of company names t
 to a common company name in the ground truth. For example, all different names used to address an external bank account.
 This step aggregates the name-matching scores from the supervised layer into a single match.
 
-The package is modular in design and and works both using both Pandas and Spark. A classifier trained with the former
-can be used with the latter and vice versa.
+The package is modular in design and works with Pandas, Polars and Spark.
 
 For release history see [GitHub Releases](https://github.com/ing-bank/EntityMatchingModel/releases).
 
@@ -33,6 +32,7 @@ For detailed examples of the code please see the notebooks under `notebooks/`.
 
 - `01-entity-matching-pandas-version.ipynb`: Using the Pandas version of EMM for name-matching.
 - `02-entity-matching-spark-version.ipynb`: Using the Spark version of EMM for name-matching.
+- `02-entity-matching-polars-version.ipynb`: Using the Polars version of EMM for name-matching.
 - `03-entity-matching-training-pandas-version.ipynb`: Fitting the supervised model and setting a discrimination threshold (Pandas).
 - `04-entity-matching-aggregation-pandas-version.ipynb`: Using the aggregation layer and setting a discrimination threshold (Pandas).
 
@@ -63,6 +63,14 @@ Additional dependencies can be installed with, e.g.:
 ```shell
 pip install "emm[spark,dev,test]"
 ```
+
+For the Polars pipeline, install `emm[polars]` and use `PolarsEntityMatching`
+with Polars DataFrames. Polars candidate `uid` and `gt_uid` values are
+zero-based row positions; explicit entity IDs are carried in `entity_id` and
+`gt_entity_id`. Standard pandas-trained supervised pipelines are supported;
+custom pandas feature extractor subclasses and custom rank or difference
+functions are not supported by the Polars supervised layer.
+See `example_polars()` in [example.py](example.py) for a complete Polars example.
 
 You can now use the package in Python with:
 

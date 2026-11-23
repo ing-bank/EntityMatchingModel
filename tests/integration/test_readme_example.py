@@ -21,7 +21,7 @@ import pandas as pd
 import pytest
 
 from emm.helper import spark_installed
-from example import example, example_pandas, example_spark
+from example import example, example_pandas, example_polars, example_spark
 from tests.utils import read_markdown
 
 
@@ -55,6 +55,25 @@ def test_example_pandas():
 """
     )
     pd.testing.assert_frame_equal(best_candidates_pd, cand_excepted_pd, check_dtype=False)
+
+
+def test_example_polars(monkeypatch):
+    pl = pytest.importorskip("polars")
+
+    def fail_conversion(*args, **kwargs):
+        msg = "Polars example must not convert to pandas"
+        raise AssertionError(msg)
+
+    monkeypatch.setattr(pl.DataFrame, "to_pandas", fail_conversion)
+    actual = example_polars().sort("name")
+    expected = pl.DataFrame(
+        {
+            "name": ["Apl", "Aplle", "Microbloft", "Netflfli", "amz", "googol"],
+            "gt_name": ["Apple", "Apple", "Microsoft", "Netflix", "Amazon", "Google"],
+            "gt_entity_id": [1, 1, 2, 5, 4, 3],
+        }
+    )
+    assert actual.to_dicts() == expected.to_dicts()
 
 
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
