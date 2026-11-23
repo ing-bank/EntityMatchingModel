@@ -61,16 +61,8 @@ where in this example the code is installed in edit mode (option -e).
 Additional dependencies can be installed with, e.g.:
 
 ```shell
-pip install "emm[spark,dev,test]"
+pip install "emm[spark,polars,dev,test]"
 ```
-
-For the Polars pipeline, install `emm[polars]` and use `PolarsEntityMatching`
-with Polars DataFrames. Polars candidate `uid` and `gt_uid` values are
-zero-based row positions; explicit entity IDs are carried in `entity_id` and
-`gt_entity_id`. Standard pandas-trained supervised pipelines are supported;
-custom pandas feature extractor subclasses and custom rank or difference
-functions are not supported by the Polars supervised layer.
-See `example_polars()` in [example.py](example.py) for a complete Polars example.
 
 You can now use the package in Python with:
 
@@ -135,7 +127,8 @@ best_candidates = candidates_scored_pd[candidates_scored_pd.best_match]
 best_candidates.head()
 ```
 
-For Spark, you can use the class `SparkEntityMatching` instead, with the same API as the Pandas version.
+For Spark or Polars, you can use the class `SparkEntityMatching` or `PolarsEntityMatching` instead, with the same API as the Pandas version.
+See `example_spark()` and `example_polars()` in [example.py](example.py) for their examples.
 For all available examples, please see the tutorial notebooks under `notebooks/`.
 
 ## Project contributors
