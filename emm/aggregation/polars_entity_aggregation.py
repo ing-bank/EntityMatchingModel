@@ -40,7 +40,7 @@ def _row_index_name(df: pl.DataFrame) -> str:
     return name
 
 
-def matching_max_candidate(  # noqa: PLR0917
+def matching_max_candidate(
     df: pl.DataFrame,
     group: list[str],
     score_col: str,
@@ -126,7 +126,7 @@ def matching_max_candidate(  # noqa: PLR0917
 class PolarsEntityAggregation(TransformerMixin, BaseEntityAggregation):
     """Aggregate candidate scores per account using native Polars operations."""
 
-    def __init__(  # noqa: PLR0917
+    def __init__(
         self,
         score_col: str,
         account_col: str = "account",

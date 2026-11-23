@@ -98,7 +98,7 @@ def test_entity_aggregation_pandas_cases(sample_candidates, aggregation_method):
     assert actual["best_rank"].to_list() == [1, 1]
 
 
-@pytest.fixture
+@pytest.fixture()
 def mixed_candidates():
     return pl.DataFrame(
         {

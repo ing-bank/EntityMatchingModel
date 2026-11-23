@@ -248,7 +248,7 @@ def test_pandas_polars_supervised_features(kvk_training_dataset, supervised_mode
 @pytest.mark.parametrize("aggregation_method", ["max_frequency_nm_score", "mean_score"])
 @pytest.mark.parametrize("only_nocandidate", [True, False])
 @pytest.mark.parametrize("freq_col_bug", [True, False])
-def test_pandas_polars_everything_no_candidates(  # noqa: PLR0917
+def test_pandas_polars_everything_no_candidates(
     name_only, supervised_on, aggregation_layer, aggregation_method, only_nocandidate, freq_col_bug, supervised_model
 ):
     gt = pd.DataFrame(

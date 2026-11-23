@@ -29,7 +29,7 @@ from emm.supervised_model.base_supervised_model import create_new_model_pipeline
 from emm.supervised_model.polars_supervised_model import _polars_model
 
 
-def train_model_polars(  # noqa: PLR0917
+def train_model_polars(
     train_df: pl.DataFrame,
     vocabulary: Any = None,
     name_only: bool = False,

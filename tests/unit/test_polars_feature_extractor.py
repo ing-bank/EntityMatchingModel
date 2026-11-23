@@ -34,7 +34,7 @@ assert_polars_frame_equal = import_module("polars.testing").assert_frame_equal
 pandas_kvk_fixture = pandas_tests.kvk_candidate_pairs
 
 
-@pytest.fixture
+@pytest.fixture()
 def candidate_pairs():
     return pl.DataFrame(
         {

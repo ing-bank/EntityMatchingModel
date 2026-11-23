@@ -81,9 +81,10 @@ class PolarsPreprocessor(TransformerMixin, AbstractPreprocessor):
                 if isinstance(preprocess_def, str):
                     func = func_dict[preprocess_def]
                 else:
-                    func = lambda values: values.map_elements(
-                        preprocess_def, return_dtype=pl.String, skip_nulls=False
-                    )
+
+                    def func(values: pl.Series) -> pl.Series:
+                        return values.map_elements(preprocess_def, return_dtype=pl.String, skip_nulls=False)
+
                 series = func(series)
 
             dataset = dataset.with_columns(series.alias(self.output_col))

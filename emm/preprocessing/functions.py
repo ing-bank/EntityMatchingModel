@@ -90,9 +90,7 @@ def create_func_dict(
         "map_shorthands": map_shorthands,
         # Merge & or / separated abbreviations by removing & or / and the spaces between them
         "merge_&": F.regex_replace(
-            r"(\s|^)(\w)\s*[&/]\s*(\w)(\s|$)",
-            r"$1$2$3$4" if use_spark or use_polars else r"\1\2\3\4",
-            simple=True,
+            r"(\s|^)(\w)\s*[&/]\s*(\w)(\s|$)", r"$1$2$3$4" if use_spark or use_polars else r"\1\2\3\4", simple=True
         ),
         # remove legal form
         "remove_legal_form": F.run_custom_function(

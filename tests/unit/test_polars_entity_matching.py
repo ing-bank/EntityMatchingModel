@@ -35,7 +35,7 @@ negative_samples_polars = import_module("emm.data.polars_prepare_name_pairs")._n
 namepairs_df = test_negative_sample_creation.namepairs_df
 
 
-@pytest.fixture
+@pytest.fixture()
 def data():
     ground_truth = pl.DataFrame(
         {

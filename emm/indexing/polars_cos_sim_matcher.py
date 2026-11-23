@@ -44,7 +44,7 @@ def _column_values(X: pl.DataFrame, column: str) -> list[str]:
 class PolarsCosSimIndexer(TransformerMixin, CosSimBaseIndexer):
     """Cosine similarity indexer that returns Polars candidate pairs."""
 
-    def __init__(  # noqa: PLR0917
+    def __init__(
         self,
         input_col: str = "preprocessed",
         tokenizer: Literal["words", "characters"] = "words",

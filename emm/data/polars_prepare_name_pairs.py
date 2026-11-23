@@ -98,7 +98,7 @@ def _negative_samples(candidates: pl.DataFrame, uid_col: str, correct_col: str, 
     return pl.concat(results, how="vertical_relaxed").drop(row_id)
 
 
-def prepare_name_pairs_polars(  # noqa: PLR0917
+def prepare_name_pairs_polars(
     candidates: pl.DataFrame,
     drop_duplicate_candidates: bool = False,
     drop_samename_nomatch: bool = False,

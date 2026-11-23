@@ -199,7 +199,7 @@ class PolarsSupervisedLayerTransformer(TransformerMixin, BaseSupervisedModel):
             )
         return X
 
-    def select_best_score(  # noqa: PLR0917
+    def select_best_score(
         self,
         X: pl.DataFrame,
         group_cols: list[str],

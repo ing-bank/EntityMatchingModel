@@ -40,7 +40,7 @@ create_new_model_pipeline = import_module("emm.supervised_model.base_supervised_
 assert_polars_frame_equal = import_module("polars.testing").assert_frame_equal
 
 
-@pytest.fixture
+@pytest.fixture()
 def candidates():
     return pl.DataFrame(
         {
@@ -53,7 +53,7 @@ def candidates():
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def trained_model(candidates):
     pairs = candidates.filter(pl.col("gt_uid").is_not_null())
     model = create_new_model_pipeline(xgb_args={"n_estimators": 8, "n_jobs": 1, "min_child_weight": 0})

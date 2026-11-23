@@ -98,7 +98,7 @@ def _vocabulary_features(name1: list[str], name2: list[str], vocabulary: Vocabul
 class PolarsFeatureExtractor(TransformerMixin, BaseFeatureExtractor):
     """Calculate name-pair, vocabulary, score, and optional legal-form features with Polars."""
 
-    def __init__(  # noqa: PLR0917
+    def __init__(
         self,
         name1_col: str = "preprocessed",
         name2_col: str = "gt_preprocessed",

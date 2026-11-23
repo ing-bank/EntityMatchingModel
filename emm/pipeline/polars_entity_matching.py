@@ -51,7 +51,7 @@ if TYPE_CHECKING:
 class PolarsEntityMatching(BaseEntityMatching):
     """Entity matching pipeline using Polars DataFrames throughout."""
 
-    def __init__(  # noqa: PLR0917
+    def __init__(
         self,
         parameters: dict[str, Any] | None = None,
         supervised_models: Mapping[str, Any] | None = None,
@@ -283,7 +283,7 @@ class PolarsEntityMatching(BaseEntityMatching):
             **kwargs,
         )
 
-    def fit_classifier(  # noqa: PLR0917
+    def fit_classifier(
         self,
         train_positive_names_to_match: pl.DataFrame | None = None,
         train_name_pairs: pl.DataFrame | None = None,
@@ -378,7 +378,7 @@ class PolarsEntityMatching(BaseEntityMatching):
         labels = results.select(correct)["id"].to_numpy()
         logger.info("AUC of the supervised model: %.4f", roc_auc_score(labels, results["nm_score"].to_numpy()))
 
-    def add_supervised_model(  # noqa: PLR0917
+    def add_supervised_model(
         self,
         path: str | None = None,
         model: Pipeline | None = None,

@@ -163,9 +163,9 @@ def example_pandas():
 def example_polars():
     """Simple Polars entity matching example using PolarsEntityMatching."""
     # Keep the pandas and Spark examples importable without the optional Polars dependency.
-    import polars as pl  # noqa: PLC0415
+    import polars as pl
 
-    from emm import PolarsEntityMatching  # noqa: PLC0415
+    from emm import PolarsEntityMatching
 
     ground_truth = pl.DataFrame(
         {"name": ["Apple", "Microsoft", "Google", "Amazon", "Netflix", "Spotify"], "id": [1, 2, 3, 4, 5, 6]}

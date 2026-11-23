@@ -31,11 +31,7 @@ PolarsPreprocessor = import_module("emm.preprocessing.polars_preprocessor").Pola
     ("preprocess_pipeline", "names", "expected"),
     [
         ("strip_hyphens", ["Tzu-Sun_BV.a;b,c_ä"], ["Tzu Sun BV.a;b,c ä"]),
-        (
-            "strip_punctuation",
-            ["Tzu-Sun_BV:Chinese'Dutch.a;b,c_ä"],
-            ["Tzu Sun BV Chinese Dutch a b c ä"],
-        ),
+        ("strip_punctuation", ["Tzu-Sun_BV:Chinese'Dutch.a;b,c_ä"], ["Tzu Sun BV Chinese Dutch a b c ä"]),
         (
             "insert_space_around_punctuation",
             ["Tzu-Sun_BV:Chinese'Dutch.a;b,c_ä"],

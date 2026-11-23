@@ -40,7 +40,7 @@ def pytest_configure(config):
         config.option.benchmark_skip = True
 
 
-@pytest.fixture
+@pytest.fixture()
 def sample_sm_input():
     return pd.DataFrame(
         {
