@@ -156,14 +156,15 @@ def test_blacklist_only_applies_to_multiple_matches(mixed_candidates):
     assert actual.filter(pl.col("account") == "e")["name"].to_list() == ["good"]
 
 
-def test_null_string_names_and_preprocessed_values():
+@pytest.mark.parametrize("name_dtype", [pl.String, pl.Null])
+def test_null_string_names_and_preprocessed_values(name_dtype):
     pairs = pl.DataFrame(
         {
             "account": ["a", "a"],
             "gt_uid": [1, 1],
             "gt_entity_id": [1, 1],
-            "name": pl.Series([None, None], dtype=pl.String),
-            "preprocessed": pl.Series([None, None], dtype=pl.String),
+            "name": pl.Series([None, None], dtype=name_dtype),
+            "preprocessed": pl.Series([None, None], dtype=name_dtype),
             "score": [0.3, 0.5],
             "freq": [1, 1],
         }
@@ -233,7 +234,7 @@ def test_mean_score_float32_rounding_selects_same_candidate_as_pandas(with_missi
     actual = PolarsEntityAggregation(**kwargs).transform(pairs)
     expected = PandasEntityAggregation(**kwargs).transform(pairs.to_pandas())
     pd.testing.assert_frame_equal(actual.to_pandas().reset_index(drop=True), expected.reset_index(drop=True))
-    assert actual["gt_uid"].to_list() == [2 if with_missing_score else 1]
+    assert actual["gt_uid"].to_list() == [1]
 
 
 @pytest.mark.parametrize("first_entity", [2, None])
@@ -254,7 +255,7 @@ def test_mean_score_float32_unsorted_groups_select_same_candidate_as_pandas(firs
     pd.testing.assert_frame_equal(
         actual.to_pandas().reset_index(drop=True), expected.reset_index(drop=True), check_dtype=False
     )
-    assert actual["gt_uid"].to_list() == [2]
+    assert actual["gt_uid"].to_list() == [1]
 
 
 @pytest.mark.parametrize("aggregation_method", ["max_frequency_nm_score", "mean_score"])

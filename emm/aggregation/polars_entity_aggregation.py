@@ -59,15 +59,8 @@ def matching_max_candidate(
         scores = _without_nan(df, score_col)
         keys = [_without_nan(df, column) for column in group]
         if df.schema[score_col] == pl.Float32:
-            # Pandas uses a Float64 mean fast path for sorted groups without missing scores.
-            group_values = df.select(*[key.alias(column) for key, column in zip(keys, group, strict=True)])
-            sorted_groups = group_values.equals(group_values.sort(group, nulls_last=True))
-            if df.select(scores.is_null().any()).item() or not sorted_groups:
-                mean = (scores.sum().over(keys) / scores.count().over(keys)).cast(pl.Float32)
-            else:
-                mean = scores.cast(pl.Float64).mean().over(keys)
-        else:
-            mean = scores.mean().over(keys)
+            scores = scores.cast(pl.Float64)
+        mean = scores.mean().over(keys)
         result = df.with_columns(mean.alias(output_col))
         if result.height == 1:
             return result
@@ -85,8 +78,7 @@ def matching_max_candidate(
     if df.height == 1:
         return df.with_columns(pl.col(score_col).alias(output_col))
     names = df[name_col].to_list()
-    missing_string_name = names[0] is None and df.schema[name_col] in (pl.String, pl.Categorical, pl.Enum)
-    if not missing_string_name and all(name == names[0] for name in names):
+    if names[0] is not None and all(name == names[0] for name in names):
         return (
             df.sort(_without_nan(df, score_col), descending=True, nulls_last=True, maintain_order=True)
             .head(1)
@@ -124,7 +116,10 @@ def matching_max_candidate(
 
 
 class PolarsEntityAggregation(TransformerMixin, BaseEntityAggregation):
-    """Aggregate candidate scores per account using native Polars operations."""
+    """Aggregate candidate scores per account using native Polars operations.
+
+    Float32 scores are averaged as Float64. Missing names are not treated as identical.
+    """
 
     def __init__(
         self,
