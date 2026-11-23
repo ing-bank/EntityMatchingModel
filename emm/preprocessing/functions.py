@@ -38,9 +38,13 @@ except ImportError:
 from emm.preprocessing.abbreviation_util import abbreviations_to_words, legal_abbreviations_to_words
 
 
-def create_func_dict(use_spark: bool = True) -> dict[str, Callable[[Any], Any] | Callable[[str], str]]:
+def create_func_dict(
+    use_spark: bool = True, use_polars: bool = False
+) -> dict[str, Callable[[Any], Any] | Callable[[str], str]]:
     if use_spark:
         import emm.preprocessing.spark_functions as F
+    elif use_polars:
+        import emm.preprocessing.polars_functions as F
     else:
         import emm.preprocessing.pandas_functions as F
 
@@ -86,7 +90,7 @@ def create_func_dict(use_spark: bool = True) -> dict[str, Callable[[Any], Any] |
         "map_shorthands": map_shorthands,
         # Merge & or / separated abbreviations by removing & or / and the spaces between them
         "merge_&": F.regex_replace(
-            r"(\s|^)(\w)\s*[&/]\s*(\w)(\s|$)", r"$1$2$3$4" if use_spark else r"\1\2\3\4", simple=True
+            r"(\s|^)(\w)\s*[&/]\s*(\w)(\s|$)", r"$1$2$3$4" if use_spark or use_polars else r"\1\2\3\4", simple=True
         ),
         # remove legal form
         "remove_legal_form": F.run_custom_function(

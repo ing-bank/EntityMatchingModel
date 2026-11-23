@@ -35,11 +35,7 @@ def nb_tester(root_directory):
     exec_dir = root_directory / "notebooks"
 
     return NBRegressionFixture(
-        diff_ignore=(
-            "/metadata/language_info",
-            "/cells/*/execution_count",
-            "/cells/*/outputs/*",
-        ),
+        diff_ignore=("/metadata/language_info", "/cells/*/execution_count", "/cells/*/outputs/*"),
         exec_timeout=1800,
         exec_cwd=str(exec_dir),
     )
@@ -53,6 +49,12 @@ def test_notebook_pandas(nb_tester, root_directory):
 @pytest.mark.skipif(not spark_installed, reason="spark not found")
 def test_notebook_spark(nb_tester, root_directory):
     file_path = (root_directory / "notebooks/02-entity-matching-spark-version.ipynb").resolve()
+    nb_tester.check(str(file_path))
+
+
+def test_notebook_polars(nb_tester, root_directory):
+    pytest.importorskip("polars")
+    file_path = (root_directory / "notebooks/02-entity-matching-polars-version.ipynb").resolve()
     nb_tester.check(str(file_path))
 
 

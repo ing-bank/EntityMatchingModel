@@ -68,6 +68,8 @@ class PandasEntityAggregation(TransformerMixin, BaseEntityAggregation):
         - "max_frequency_nm_score": weights the nm_score with the frequency and takes the maximum to find the best
             ground-truth name.
 
+        Float32 scores are averaged as Float64. Missing names are not treated as identical.
+
         Args:
             score_col: name-matching score "nm_score" or first cosine similarity score "score_0".
             account_col: account column, default is "account".

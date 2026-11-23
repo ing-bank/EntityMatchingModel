@@ -31,7 +31,10 @@ if TYPE_CHECKING:
 
 def _mean_score_aggregation(df, group, score_col, output_col):
     # set dropna to False to keep no_candidate rows
-    df[output_col] = df.groupby(group, dropna=False)[score_col].transform("mean")
+    scores = df[score_col]
+    if scores.dtype == "float32":
+        scores = scores.astype("float64")
+    df[output_col] = scores.groupby([df[column] for column in group], dropna=False).transform("mean")
 
     # Short circuit if possible
     if df.shape[0] == 1:
@@ -41,6 +44,8 @@ def _mean_score_aggregation(df, group, score_col, output_col):
 
 def is_series_unique(series: pd.Series) -> bool:
     # does series consist of one value only?
+    if series.isna().any():
+        return False
     a = series.to_numpy()
     return (a[0] == a).all()
 
@@ -79,8 +84,13 @@ def _max_frequency_nm_score_aggregation(
     best_match_df = am_df.nlargest(1, ["freq_score"], keep="first")
 
     # 3a. pick the most frequent name of each account-grid combi: one-name summary information
-    group_key = tuple(best_match_df[group].to_numpy()[0])
-    one_accountname_df = df_grouped.get_group(group_key).sort_values(["freq_score"], ascending=False).head(1)
+    matching_keys = df[group].notna()
+    for column in group:
+        winner = best_match_df[column]
+        matching_keys[column] = df[column].isna() if winner.isna().iloc[0] else df[column].eq(winner.iloc[0])
+    one_accountname_df = (
+        df.loc[matching_keys.fillna(False).all(axis=1)].sort_values(["freq_score"], ascending=False).head(1)
+    )
     df = one_accountname_df.drop(columns=["freq_score"]).copy()
     df["agg_score"] = best_match_df["agg_score"].to_numpy()[0]
     return df
@@ -99,6 +109,8 @@ def matching_max_candidate(
     """This function aggregates all the names and its candidates of an account.
     If aggregation_method = 'mean_score'
     - Average the scores per GT and return the maximum.
+
+    Float32 scores are averaged as Float64. Missing names are not treated as identical.
 
     Returns dataframe with a single row.
 

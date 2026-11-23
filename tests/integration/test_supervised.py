@@ -18,7 +18,6 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import numpy as np
-import pandas as pd
 import pytest
 
 from emm.helper import spark_installed
@@ -32,23 +31,6 @@ from .test_pandas_em import split_gt_and_names
 if spark_installed:
     from emm.pipeline.spark_entity_matching import SparkEntityMatching
     from emm.supervised_model.spark_supervised_model import SparkSupervisedLayerEstimator
-
-
-@pytest.fixture()
-def sample_sm_input():
-    return pd.DataFrame(
-        {
-            "uid": [1, 2],
-            "gt_uid": [10, 11],
-            "entity_id": [1000, 1001],
-            "gt_entity_id": [2000, 2001],
-            "name": ["Abc!", "iNg BV"],
-            "gt_name": ["Xyz   Abc", "ING limited"],
-            "preprocessed": ["abc", "ing bv"],
-            "gt_preprocessed": ["xyz abc", "ing ltd"],
-            "score_0": [0.8, 0.99],
-        }
-    )
 
 
 def test_calc_features_helper_function(sample_sm_input, supervised_model):

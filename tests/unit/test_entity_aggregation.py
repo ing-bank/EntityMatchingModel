@@ -150,6 +150,102 @@ def test_matching_max_freq_score_nan_candidate():
     pd.testing.assert_frame_equal(match_result, match_expected)
 
 
+@pytest.mark.parametrize("missing_name", [None, np.nan])
+def test_matching_max_freq_score_null_names_and_group(missing_name):
+    pairs = pd.DataFrame(
+        {
+            "account": ["a", "a"],
+            "gt_entity_id": [None, None],
+            "gt_uid": [1, 1],
+            "name": pd.Series([missing_name, missing_name], dtype=object),
+            "score": [0.3, 0.5],
+            "freq": [1, 1],
+        }
+    )
+    result = matching_max_candidate(
+        pairs,
+        group=["gt_entity_id", "gt_uid", "account"],
+        score_col="score",
+        name_col="name",
+        account_col="account",
+        freq_col="freq",
+        output_col="agg_score",
+    )
+    assert result["score"].tolist() == [0.5]
+    assert result["agg_score"].iloc[0] == pytest.approx(0.4)
+
+
+@pytest.mark.parametrize(("frequencies", "expected_name"), [([4, 1], "first"), ([1, 4], "second")])
+def test_matching_max_freq_score_selects_null_or_non_null_group(frequencies, expected_name):
+    pairs = pd.DataFrame(
+        {
+            "account": ["a", "a"],
+            "gt_entity_id": [None, 2],
+            "gt_uid": [1, 1],
+            "name": ["first", "second"],
+            "score": [0.5, 0.5],
+            "freq": frequencies,
+        }
+    )
+    result = matching_max_candidate(
+        pairs,
+        group=["gt_entity_id", "gt_uid", "account"],
+        score_col="score",
+        name_col="name",
+        account_col="account",
+        freq_col="freq",
+        output_col="agg_score",
+    )
+    assert result["name"].tolist() == [expected_name]
+
+
+def test_matching_max_freq_score_preserves_large_group_keys():
+    pairs = pd.DataFrame(
+        {
+            "account": ["a", "a"],
+            "gt_entity_id": [np.nan, np.nan],
+            "gt_uid": [2**53, 2**53 + 1],
+            "name": ["first", "second"],
+            "score": [0.5, 0.5],
+            "freq": [1, 4],
+        }
+    )
+    result = matching_max_candidate(
+        pairs,
+        group=["gt_entity_id", "gt_uid"],
+        score_col="score",
+        name_col="name",
+        account_col="account",
+        freq_col="freq",
+        output_col="agg_score",
+    )
+    assert result["gt_uid"].tolist() == [2**53 + 1]
+
+
+def test_matching_mean_score_float32_sorted_groups():
+    pairs = pd.DataFrame(
+        {
+            "account": ["a"] * 4,
+            "gt_uid": [1, 1, 1, 2],
+            "name": ["first", "second", "third", "fourth"],
+            "score": np.array([0.9] * 4, dtype=np.float32),
+            "freq": [1] * 4,
+        }
+    )
+    result = matching_max_candidate(
+        pairs,
+        group=["gt_uid", "account"],
+        score_col="score",
+        name_col="name",
+        account_col="account",
+        freq_col="freq",
+        output_col="agg_score",
+        aggregation_method="mean_score",
+    )
+    assert result["gt_uid"].tolist() == [1]
+    assert result["agg_score"].dtype == np.float64
+
+
 @pytest.fixture()
 def sample_candidates():
     return read_markdown(

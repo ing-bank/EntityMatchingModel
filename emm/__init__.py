@@ -17,6 +17,8 @@
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+from importlib.util import find_spec
+
 from emm import parameters
 from emm.helper import spark_installed
 from emm.loggers.logger import set_logger
@@ -24,7 +26,12 @@ from emm.pipeline.pandas_entity_matching import PandasEntityMatching
 
 from .version import __version__
 
-__all__ = ["parameters", "PandasEntityMatching", "set_logger", "__version__"]
+__all__ = ["PandasEntityMatching", "__version__", "parameters", "set_logger"]
+
+if find_spec("polars") is not None:
+    from emm.pipeline.polars_entity_matching import PolarsEntityMatching
+
+    __all__ += ["PolarsEntityMatching"]
 
 if spark_installed:
     from emm.pipeline.spark_entity_matching import SparkEntityMatching

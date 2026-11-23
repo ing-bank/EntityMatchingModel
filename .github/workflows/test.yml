@@ -28,7 +28,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[spark,mlflow,test,test-notebook,test-cov]
+        pip install -e .[spark,polars,mlflow,test,test-notebook,test-cov]
     - name: Lint with pre-commit
       run: |
         pip install pre-commit

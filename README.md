@@ -22,8 +22,7 @@ Optionally, the EMM package can also be used to match a group of company names t
 to a common company name in the ground truth. For example, all different names used to address an external bank account.
 This step aggregates the name-matching scores from the supervised layer into a single match.
 
-The package is modular in design and and works both using both Pandas and Spark. A classifier trained with the former
-can be used with the latter and vice versa.
+The package is modular in design and works with Pandas, Polars and Spark.
 
 For release history see [GitHub Releases](https://github.com/ing-bank/EntityMatchingModel/releases).
 
@@ -33,6 +32,7 @@ For detailed examples of the code please see the notebooks under `notebooks/`.
 
 - `01-entity-matching-pandas-version.ipynb`: Using the Pandas version of EMM for name-matching.
 - `02-entity-matching-spark-version.ipynb`: Using the Spark version of EMM for name-matching.
+- `02-entity-matching-polars-version.ipynb`: Using the Polars version of EMM for name-matching.
 - `03-entity-matching-training-pandas-version.ipynb`: Fitting the supervised model and setting a discrimination threshold (Pandas).
 - `04-entity-matching-aggregation-pandas-version.ipynb`: Using the aggregation layer and setting a discrimination threshold (Pandas).
 
@@ -61,7 +61,7 @@ where in this example the code is installed in edit mode (option -e).
 Additional dependencies can be installed with, e.g.:
 
 ```shell
-pip install "emm[spark,dev,test]"
+pip install "emm[spark,polars,dev,test]"
 ```
 
 You can now use the package in Python with:
@@ -127,7 +127,8 @@ best_candidates = candidates_scored_pd[candidates_scored_pd.best_match]
 best_candidates.head()
 ```
 
-For Spark, you can use the class `SparkEntityMatching` instead, with the same API as the Pandas version.
+For Spark or Polars, you can use the class `SparkEntityMatching` or `PolarsEntityMatching` instead, with the same API as the Pandas version.
+See `example_spark()` and `example_polars()` in [example.py](example.py) for their examples.
 For all available examples, please see the tutorial notebooks under `notebooks/`.
 
 ## Project contributors

@@ -160,6 +160,48 @@ def example_pandas():
     return best_candidates
 
 
+def example_polars():
+    """Simple Polars entity matching example using PolarsEntityMatching."""
+    # Keep the pandas and Spark examples importable without the optional Polars dependency.
+    import polars as pl
+
+    from emm import PolarsEntityMatching
+
+    ground_truth = pl.DataFrame(
+        {"name": ["Apple", "Microsoft", "Google", "Amazon", "Netflix", "Spotify"], "id": [1, 2, 3, 4, 5, 6]}
+    )
+    train_names = pl.DataFrame(
+        {"name": ["MicorSoft", "Gugle", "Netfliks", "Spot-on", "Spot-off"], "id": [2, 3, 5, 6, 6]}
+    )
+    test_names = pl.DataFrame(
+        {"name": ["Apl", "Aplle", "Microbloft", "Netflfli", "amz", "googol"], "id": [1, 1, 2, 5, 4, 3]}
+    )
+    indexers = [
+        {
+            "type": "cosine_similarity",
+            "tokenizer": "characters",
+            "ngram": 2,
+            "num_candidates": 5,
+            "cos_sim_lower_bound": 0.2,
+        },
+        {"type": "sni", "window_length": 3},
+    ]
+    emm_config = {
+        "name_only": True,
+        "entity_id_col": "id",
+        "name_col": "name",
+        "indexers": indexers,
+        "supervised_on": False,
+    }
+
+    model = PolarsEntityMatching(emm_config)
+    model.fit(ground_truth)
+    model.fit_classifier(train_names, create_negative_sample_fraction=0.5)
+    candidates_scored = model.transform(test_names)
+
+    return candidates_scored.filter(pl.col("score_0") > 0).select("name", "gt_name", "gt_entity_id")
+
+
 def example_spark(spark):
     """Simple spark entity matching example using SparkEntityMatching"""
     # Another example, but this time in spark, with dummy ground truth and names-to-match.
