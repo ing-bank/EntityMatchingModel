@@ -152,7 +152,9 @@ in one of the names.
   s_sni = indexing.SparkSortedNeighbourhoodIndexer(window_length=3)
 
 
-(For Pandas we use the implementation from the brilliant ``recordlinkage`` package.)
+The Pandas implementation is adapted from the ``recordlinkage`` package and does not require it at runtime.
+Previously saved Pandas models containing a recordlinkage SNI indexer may still require that package to load.
+To migrate such a model, install recordlinkage, load and transform with the model, then save it again.
 
 See the API section for more details.
 

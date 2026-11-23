@@ -26,7 +26,6 @@ dependencies = [
   "rapidfuzz<3.0.0",
   "regex",
   "urllib3",
-  "recordlinkage",
   "cleanco>=2.2",
   # It is important to fix the version of xgboost for reproducible classification scores
   "xgboost",

@@ -22,7 +22,7 @@ import pytest
 
 from emm.helper import spark_installed
 from emm.indexing.pandas_cos_sim_matcher import PandasCosSimIndexer
-from emm.indexing.pandas_sni import PandasSortedNeighbourhoodIndexer
+from emm.indexing.pandas_sni import PandasSortedNeighbourhoodIndexer, SortedNeighbourhood
 from emm.pipeline.pandas_entity_matching import PandasEntityMatching
 from tests.utils import read_markdown
 
@@ -40,6 +40,98 @@ def simplify_indexer_result(res, gt):
     ).values.tolist()
 
 
+@pytest.mark.parametrize(
+    ("window", "expected"),
+    [
+        (1, [(40, 3), (40, 9), (10, 1), (20, 3), (20, 9)]),
+        (3, [(10, 8), (40, 3), (40, 9), (10, 1), (20, 3), (20, 9), (40, 8), (20, 8), (50, 3), (50, 9)]),
+        (
+            5,
+            [
+                (10, 3),
+                (10, 9),
+                (10, 8),
+                (40, 3),
+                (40, 9),
+                (10, 1),
+                (20, 3),
+                (20, 9),
+                (40, 8),
+                (20, 8),
+                (50, 3),
+                (50, 9),
+                (40, 1),
+                (20, 1),
+                (50, 8),
+            ],
+        ),
+        (
+            9,
+            [
+                (10, 3),
+                (10, 9),
+                (10, 8),
+                (40, 3),
+                (40, 9),
+                (10, 1),
+                (20, 3),
+                (20, 9),
+                (40, 8),
+                (20, 8),
+                (50, 3),
+                (50, 9),
+                (40, 1),
+                (20, 1),
+                (50, 8),
+                (50, 1),
+            ],
+        ),
+    ],
+)
+def test_sorted_neighbourhood_candidates(window, expected):
+    left = pd.DataFrame({"left_name": ["c", "a", None, "c", "d"]}, index=pd.Index([40, 10, 30, 20, 50], name="id"))
+    right = pd.DataFrame({"right_name": ["b", "c", None, "a", "c"]}, index=pd.Index([8, 3, 5, 1, 9], name="id"))
+    indexer = SortedNeighbourhood(left_on="left_name", right_on="right_name", window=window)
+    result = indexer.index(left, right)
+    assert sorted(result.tolist()) == sorted(expected)
+    assert result.names == ["id_1", "id_2"]
+    assert indexer.sorting_key_values.tolist() == ["a", "b", "c", "d"]
+
+
+@pytest.mark.parametrize("empty_side", ["left", "right", "both"])
+def test_sorted_neighbourhood_empty_inputs(empty_side):
+    left = pd.DataFrame({"name": ["a"]}, index=pd.Index([1], name="id"))
+    right = pd.DataFrame({"name": ["b"]}, index=pd.Index([2], name="id"))
+    if empty_side in ("left", "both"):
+        left = left.iloc[:0]
+    if empty_side in ("right", "both"):
+        right = right.iloc[:0]
+
+    result = SortedNeighbourhood(left_on="name").index(left, right)
+    assert result.empty
+    assert result.names == ["id_1", "id_2"]
+
+
+@pytest.mark.parametrize("window", [0, -1, 2, 1.5])
+def test_sorted_neighbourhood_rejects_invalid_window(window):
+    names = pd.DataFrame({"name": ["a"]})
+    with pytest.raises(ValueError, match="window is not a positive and odd integer"):
+        SortedNeighbourhood(left_on="name", window=window).index(names, names)
+
+
+def test_sorted_neighbourhood_rejects_duplicate_indexes():
+    names = pd.DataFrame({"name": ["a", "b"]}, index=[1, 1])
+    with pytest.raises(ValueError, match="index of DataFrame is not unique"):
+        SortedNeighbourhood(left_on="name").index(names, names)
+
+
+def test_sni_indexer_with_empty_query():
+    indexer = PandasSortedNeighbourhoodIndexer("name").fit(pd.DataFrame({"name": ["a"]}))
+    result = indexer.transform(pd.DataFrame({"name": pd.Series([], dtype="str")}))
+    assert result.empty
+    assert result.columns.tolist() == ["uid", "gt_uid", "rank", "score"]
+
+
 def test_sni_indexer(sample_gt):
     idx = PandasSortedNeighbourhoodIndexer("name", window_length=3)
     idx.fit(sample_gt)
@@ -51,6 +143,7 @@ def test_sni_indexer(sample_gt):
     ]:
         query = pd.DataFrame({"name": [name]})
         cand = idx.transform(query)
+        assert isinstance(idx.sni, SortedNeighbourhood)
         actual_result = simplify_indexer_result(cand, sample_gt)
         assert expected_result == actual_result
 

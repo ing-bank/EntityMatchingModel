@@ -22,3 +22,9 @@
 #    Reference: https://github.com/psolin/cleanco/blob/master/cleanco/clean.py#L76
 # License: MIT
 #    https://github.com/psolin/cleanco/blob/master/LICENSE.txt
+#
+# Package: recordlinkage
+# EMM file: emm/indexing/pandas_sni.py
+#    Class: SortedNeighbourhood
+#    Reference: https://github.com/J535D165/recordlinkage/blob/v0.14/recordlinkage/index.py
+# License: BSD 3-Clause
